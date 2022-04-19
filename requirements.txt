@@ -1,0 +1,2 @@
+spacy
+fastapi[all]
