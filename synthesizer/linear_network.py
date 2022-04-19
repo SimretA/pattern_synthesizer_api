@@ -71,7 +71,7 @@ def train_linear_mode(df):
     ins = torch.tensor(df_from_3.values)
     output = torch.tensor(df["labels"]).reshape(-1,1)
 
-    selector = SelectKBest(chi2, k=20)
+    selector = SelectKBest(chi2, k=10)
 
     
     
