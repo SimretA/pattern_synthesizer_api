@@ -43,11 +43,10 @@ class Synthesizer:
                     else:
                         literal_dict[lit] += 1
                     words.append(token.lemma_)
-        words = []
-        for i in literal_dict:
-            if(literal_dict[i]/len(self.positive_examples)>0.1):
-                words.append(i)
-        print(words)
+
+        literal_dict =  {k: v for k, v in sorted(literal_dict.items(), key=lambda item: item[1], reverse=True)}
+
+        return list(literal_dict.keys())[:threshold]       
         return words
     def get_search_space(self, literal_threshold=4):
         part_of_speech = [ "PRON","VERB", "PROPN", "NOUN", "ADJ", "ADV", "AUX", "NUM"]

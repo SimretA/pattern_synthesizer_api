@@ -6,6 +6,8 @@ from sklearn.feature_selection import SelectKBest
 from sklearn.feature_selection import chi2
 from sklearn.feature_selection import f_classif
 
+from sklearn.metrics import precision_recall_fscore_support
+
 
 import spacy
 from spacy.matcher import Matcher
@@ -48,42 +50,24 @@ def patterns_against_examples(file_name, patterns, examples, ids, labels):
     df = df.set_index("id")
     df.to_csv(file_name)
     return df
-def score(ground_truth, pred):
-    tp = tn = fp = fn = 0
-    for i in range(len(ground_truth)):
-        if(ground_truth[i]==0 and int(pred[i][0])==0):
-            tn += 1
-        elif(ground_truth[i]==0 and int(pred[i][0])==1):
-            fp += 1
-        elif(ground_truth[i]==1 and int(pred[i][0])==0):
-            fn += 1
-        elif(ground_truth[i]==1 and int(pred[i][0])==1):
-            tp += 1
-    rec = tp /(tp+fn)
-    prec = tp/(tp+fp)
-    f = 2*(prec*rec)/(prec+rec)
-    return (prec,rec,f) 
 
-def train_linear_mode(df):    
 
-    df_from_3 = df.iloc[:,3:]
+def train_linear_mode(df, price):
+    inputs = df.iloc[:,3:].values
+    outs = df["labels"].values
 
-    ins = torch.tensor(df_from_3.values)
-    output = torch.tensor(df["labels"]).reshape(-1,1)
 
-    selector = SelectKBest(chi2, k=10)
-
-    
-    
-
-    X_new = selector.fit_transform(ins.numpy(), output.numpy())
+    selector = SelectKBest(f_classif, k=5)
+    X_new = selector.fit_transform(inputs, outs)
     cols = selector.get_support(indices=True)
 
-    smaller_df = df_from_3.iloc[:, cols]
+    smaller_inputs = np.take(inputs, cols, axis=1)
 
-    ins = torch.tensor(smaller_df.values)
-    
-    
+
+    ins = torch.tensor(smaller_inputs)
+    output = torch.tensor(outs).reshape(-1,1)
+
+
     net = torch.nn.Linear(ins.shape[1],1, bias=False)
     sigmoid = torch.nn.Sigmoid()
 
@@ -91,49 +75,85 @@ def train_linear_mode(df):
     optimizer = torch.optim.SGD(net.parameters(), lr=0.1)
     losses = []
     net.train()
-    
-    
+
     for e in range(5000):
         optimizer.zero_grad()
         o =  sigmoid.forward(net.forward(ins.float()))
-        
+            
         loss = criterion(o, output.float())
-        
+            
         losses.append(loss.sum().item())
         loss.backward()
-        
+            
         optimizer.step()
-    
+
 
     pred =  sigmoid.forward(net.forward(ins.float())).detach().numpy()>0.5
-    prec, rec, fscore = score(df["labels"], pred)
-    
-    
-    # f = 2*(prec*rec)/(prec+rec)
-    print(net.weight)
-    print(prec, rec, fscore)
+
+    labeled_prf = precision_recall_fscore_support(outs, pred, average="binary")
+
+    selected_patterns = np.take(df.columns.values,[x+3 for x in cols] )
+    selected_working_list = []
+    for pattern in selected_patterns:
+        selected_working_list.append(expand_working_list(pattern))
+
+    running_result = []
+
+    for sentence in price["example"].values:
+        temp = []
         
-    #{fscore:float, prec:float, recall:float ,patterns:list[pat, weight] }
+        for i in range(len(selected_working_list)):
+            temp.append(int(check_matching(sentence, selected_working_list[i])))
+        running_result.append(temp)
+
+    entire_dataset_ins = torch.Tensor(running_result)
+
+    entire_dataset_outs = torch.Tensor(price["positive"].values).reshape(-1,1)
+
+    overall_prob = sigmoid.forward(net.forward(entire_dataset_ins.float())) 
+
+    overall_pred = overall_prob.detach().numpy()>0.5
+
+    overall_prf = precision_recall_fscore_support(entire_dataset_outs, overall_pred, average="binary")
+
     response = dict()
+
+
     patterns =[]
-    for i in cols.tolist():
-        patterns.append(df_from_3.columns[i])
-    response["fscore"] = fscore
-    response["recall"] = rec
-    response["precision"] = prec
+    for i in range(len(cols)):
+        temp = dict()
+        prf = precision_recall_fscore_support(output, df.iloc[:, cols[i]+3], average="binary" )
+        temp["pattern"] = selected_patterns[i]
+        temp["precision"] = prf[0]
+        temp["recall"] = prf[1]
+        temp["fscore"] = prf[2]
+
+        patterns.append(temp)
+
+    response["fscore"] = labeled_prf[2]
+    response["recall"] = labeled_prf[1]
+    response["precision"] = labeled_prf[0]
+
+
+    response["overall_fscore"] = overall_prf[2]
+    response["overall_recall"] = overall_prf[1]
+    response["overall_precision"] = overall_prf[0]
+
+
     response["patterns"] = patterns
     response["weights"] = net.weight.detach().numpy()[0].tolist()
+
+    response["scores"] = [x[0] for x in overall_prob.tolist()]
+
     return response
 
 
 
 
 
-# labels = {"0":1, "1":1}
-# file_name = dict_hash(labels)
 
-# with open(f"../cache/{file_name}", "r") as file:
-#     patterns = json.load(file)
 
-# df = patterns_against_examples(file_name=file_name,patterns=list(patterns.keys()), examples=["This particular location has a good check in deal.","some of the items they sale here are a bit over priced but if you don't mind paying a bit extra this is the place to go."], ids=labels.keys(), labels=labels.values())
-# train_linear_mode(df=df)
+    
+
+
+

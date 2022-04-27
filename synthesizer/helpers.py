@@ -3,9 +3,29 @@ import spacy
 from spacy.matcher import Matcher
 import hashlib
 import json
+import numpy as np
+from sklearn.metrics import precision_recall_fscore_support
+
 
 nlp = spacy.load("en_core_web_sm")
 
+def get_patterns(df, labels, chosenpatterns=None):
+
+    patterns = []
+
+
+    cols = df.columns.tolist()
+    for i in range(3, df.shape[1]):
+        temp = dict()
+        prf = precision_recall_fscore_support(df["labels"], df.iloc[:, i], average="binary" ) 
+        temp["pattern"] = cols[i]
+        temp["precision"] = prf[0]
+        temp["recall"] = prf[1]
+        temp["fscore"] = prf[2]
+        patterns.append(temp)
+    patterns.sort(key=lambda x: (x["fscore"], len(x["pattern"])), reverse=True)
+    
+    return patterns
 
 def dict_hash(dictionary):
     dhash = hashlib.md5()
