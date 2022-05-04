@@ -20,6 +20,7 @@ class Synthesizer:
         self.get_search_space(literal_threshold)
         self.candidate = []
         self.patterns_set = {}
+    
     def read_examples(self, file):
         examples =[]
         if(file == None):
@@ -46,8 +47,8 @@ class Synthesizer:
 
         literal_dict =  {k: v for k, v in sorted(literal_dict.items(), key=lambda item: item[1], reverse=True)}
 
-        return list(literal_dict.keys())[:threshold]       
-        return words
+        return list(literal_dict.keys())[:threshold]       #pick the top N most common words
+
     def get_search_space(self, literal_threshold=4):
         part_of_speech = [ "PRON","VERB", "PROPN", "NOUN", "ADJ", "ADV", "AUX", "NUM"]
         entities =[ 'DATE', 'EVENT', 'LOC', 'MONEY', 'ORDINAL', 'ORG', 'PERCENT', 'PERSON', 'PRODUCT', 'QUANTITY']
@@ -168,14 +169,14 @@ class Synthesizer:
                         self.search(working_pattern, previous_positive_matched=postive_match_count, previous_negative_matched=negative_match_count, depth=depth+1, search_space=new_search_space)
                 else:
                     if(pat!="" and not make_or):
-                        # pass
+                        pass
                     #try an or
                         self.search(working_pattern,  previous_positive_matched=postive_match_count, previous_negative_matched=negative_match_count, depth=depth+1, make_or=True, search_space=new_search_space)
 
                 if(postive_match_count>=len(self.positive_examples)//2):
-                    print(f"pattern oring at {pat} with {working_pattern} matched {postive_match_count} previous match {previous_positive_matched}")
+                    # print(f"pattern oring at {pat} with {working_pattern} matched {postive_match_count} previous match {previous_positive_matched}")
                     self.patterns_set[pat] =  [precision, recall, fscore]
-                    # self.search(working_pattern,  previous_positive_matched=postive_match_count, previous_negative_matched=negative_match_count, depth=depth+1, make_or=True, search_space=new_search_space)
+                    self.search(working_pattern,  previous_positive_matched=postive_match_count, previous_negative_matched=negative_match_count, depth=depth+1, make_or=True, search_space=new_search_space)
 
 
     def find_patters(self, outfile="out", ):

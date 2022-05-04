@@ -97,18 +97,18 @@ def match_positives(working_list, positive_examples, negative_set=False):
     for index, distinct_pattern in enumerate(working_list):
         matcher.add(f"Posmatch{index}", [distinct_pattern])
     match_collector = dict()
-    for _i, sent in enumerate(positive_examples):
+    for _i, doc in enumerate(positive_examples):
         matched = False
-        doc = nlp(sent)
         matches = matcher(doc)
         if (matches is not None and len(matches) > 0):
             for id, start, end in matches:
+                rule = id
                 if (str(doc[start:end]).strip() != ""):
                     matched = True
-                    if (doc.vocab.strings[id] in match_collector):
-                        match_collector[doc.vocab.strings[id]].append((start, end))
+                    if (rule in match_collector):
+                        match_collector[rule].append((start, end))
                     else:
-                        match_collector[doc.vocab.strings[id]] = [(start, end)]
+                        match_collector[rule] = [(start, end)]
 
                     # print(f'sent={_i} pat={[doc.vocab.strings[id]]}, mathcedspan={doc[start:end]}')
         if (matched):

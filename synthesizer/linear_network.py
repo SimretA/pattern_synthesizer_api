@@ -60,11 +60,15 @@ def train_linear_mode(df, price):
     selector = SelectKBest(f_classif, k=5)
     X_new = selector.fit_transform(inputs, outs)
     cols = selector.get_support(indices=True)
-
+    # cols = [x for x in range(inputs.shape[1])]
+    
     smaller_inputs = np.take(inputs, cols, axis=1)
 
 
     ins = torch.tensor(smaller_inputs)
+    
+    # ins = torch.tensor(inputs)
+
     output = torch.tensor(outs).reshape(-1,1)
 
 
@@ -75,8 +79,8 @@ def train_linear_mode(df, price):
     optimizer = torch.optim.SGD(net.parameters(), lr=0.1)
     losses = []
     net.train()
-
-    for e in range(5000):
+    print("training ...")
+    for e in range(500):
         optimizer.zero_grad()
         o =  sigmoid.forward(net.forward(ins.float()))
             
@@ -109,6 +113,8 @@ def train_linear_mode(df, price):
     entire_dataset_ins = torch.Tensor(running_result)
 
     entire_dataset_outs = torch.Tensor(price["positive"].values).reshape(-1,1)
+
+    print(entire_dataset_ins.shape)
 
     overall_prob = sigmoid.forward(net.forward(entire_dataset_ins.float())) 
 
