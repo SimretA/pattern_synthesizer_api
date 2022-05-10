@@ -1,22 +1,60 @@
-from synthesizer.linear_network import patterns_against_examples, train_linear_mode
-from synthesizer.penality_based_threaded import Synthesizer
-from synthesizer.helpers import dict_hash
-from synthesizer.helpers import get_patterns
+from synthesizer_v2.linear_network import patterns_against_examples, train_linear_mode
+from synthesizer_v2.penality_based_threaded import Synthesizer
+from synthesizer_v2.helpers import dict_hash
+from synthesizer_v2.helpers import get_patterns
 import pandas as pd
 import json
 import spacy
 
 nlp = spacy.load("en_core_web_sm")
-        
 
-class APIHelper:
+class ThemeSynthesizer:
+    def __init__(self, theme_name, positive_examples_collector, negative_examples_collector ):
+        self.theme_name = theme_name
+        self.positive_examples_collector = positive_examples_collector
+        self.negative_examples_collector = negative_examples_collector
+        self.labels = {}
+        self.sytnthesizer = None
+        self.patterns = None
+        self.linear_model = None
+        self.meta = None
+    def set_positive_example(self, positive_examples_collector):
+        self.positive_examples_collector = positive_examples_collector
+
+    def set_negative_example(self, negative_examples_collector):
+        self.negative_examples_collector
+
+
+    def save_cache(self, pattern_set):
+        file_name = dict_hash(self.labels)
+        examples = list(self.positive_examples_collector.values())+list(self.negative_examples_collector.values())
+        ids = list(self.positive_examples_collector.keys())+list(self.negative_examples_collector.keys())
+        # labels = [self.labels[x] for x in ids]
+        labels = [1]*len(self.positive_examples_collector.values()) + [0]*len(self.negative_examples_collector.values())
+
+        df = patterns_against_examples(file_name=f"cache/{file_name}.csv",patterns=list(pattern_set.keys()), examples=examples, ids=ids, labels=labels)
+        return df
+    
+    def resynthesize(self, data):
+        data["positive"] = data["label"].apply(lambda x: 1 if x==self.theme_name else 0)
+        self.sytnthesizer = Synthesizer(positive_examples = list(self.positive_examples_collector.values()), negative_examples = list(self.negative_examples_collector.values()))
+        self.sytnthesizer.find_patters()
+        df = self.save_cache(self.sytnthesizer.patterns_set)
+        result = train_linear_mode(df=df, price=data)
+        self.meta = res = result[1]
+        self.linear_model = result[0] 
+        return res
+
+class APIHelper2:
     def __init__(self):
         self.positive_examples_collector = {}
         self.negative_examples_collector = {}
         self.theme = "price_service"
         self.data = pd.read_csv(f"examples/df/{self.theme}.csv")
         self.labels = {}
-        self.themes = {}
+        self.theme_to_id = {}
+        self.id_to_theme = {}
+        self.themeid_to_examples_collector = {}
     
     
     def save_cache(self, pattern_set):
@@ -39,37 +77,37 @@ class APIHelper:
     ####### End Points ######
 
     def add_theme(self, theme):
-        self.themes[theme] = {}
+        id = len(self.theme_to_id)
+        self.theme_to_id[theme] = id
+        self.id_to_theme[id] = theme
+        self.themeid_to_examples_collector[id] = {}
 
-        return list(self.themes.keys())
+        return self.theme_to_id
 
 
     def labeler(self, id, label):
+        #check if label exists in themes
+        if(label not in self.theme_to_id):
+            return {"Error": "Theme does not exist"}
+        
+        theme_id = self.theme_to_id[label]
+
         #check if label already exisits in the oposite collector and remove if it does
         exists = id in self.labels
         if(exists):
             previous_label = self.labels[id]
-            if(previous_label==0):
-                # remove from negative_example_collectore
-                del self.negative_examples_collector[id]
-            else:
-                # remove from positive_example_collectore
-                del self.positive_examples_collector[id]
+            del self.themeid_to_examples_collector[previous_label][id]
         
-        self.labels[id] = label
+        self.labels[id] = theme_id
         sentence = nlp(self.data[self.data["id"] == int(id)]["example"].values[0])
-        if(label==0):
-            self.negative_examples_collector[id] = sentence
-        elif label==1:
-            self.positive_examples_collector[id] = sentence
+        self.themeid_to_examples_collector[theme_id][id] = sentence
         
+        print(self.themeid_to_examples_collector)
         return {"status":200, "message":"ok"}
     
     def clear_label(self):
         self.labels.clear()
-        
-        self.negative_examples_collector.clear()
-        self.positive_examples_collector.clear()
+        self.themeid_to_examples_collector.clear()
 
         return {"message":"okay", "status":200}
 
@@ -77,15 +115,16 @@ class APIHelper:
 
     def get_labeled_dataset(self):
         dataset = []
+        print(self.labels)
 
         ids = self.data["id"].values
         for i in ids:
             item = dict()
             item["id"] = str(i)
             item["example"] = self.data[self.data["id"] == i]["example"].values[0]
-            item["true_label"] = self.data[self.data["id"] == i]["positive"].values.tolist()[0]
+            item["true_label"] = self.data[self.data["id"] == i]["label"].values.tolist()[0]
             if(str(i) in self.labels):
-                item["user_label"] = self.labels[str(i)]
+                item["user_label"] = self.id_to_theme[self.labels[str(i)]]
             else:
                 item["user_label"] = None
             # print()
@@ -117,22 +156,33 @@ class APIHelper:
 
     def resyntesize(self):
 
-        if len(self.labels.keys())==0 or len(self.positive_examples_collector.keys())==0:
-            return {"message":"Nothing labeled yet"}
+        collection = {}
+        results = {}
 
-        #Check if data is in the chache    
-        cached = self.ran_cache()
-        if(type(cached) != type(None)):
-            df = cached
-        else:
-            self.synthh = Synthesizer(positive_examples = list(self.positive_examples_collector.values()), negative_examples = list(self.negative_examples_collector.values()))
+        for i in self.theme_to_id:
+            id = self.theme_to_id[i]
+
+            positives = self.themeid_to_examples_collector[id]
+
+            negatives = {}
+            for x in self.themeid_to_examples_collector:
+                if(x!=id):
+                    negatives = {**negatives, **self.themeid_to_examples_collector[x]}
+
+            if(len(positives)==0):
+                continue
+
             
-            self.synthh.find_patters()
-            df = self.save_cache(self.synthh.patterns_set)
-        
 
-        res = train_linear_mode(df=df, price=self.data)
-        return res
+            collection[i] = ThemeSynthesizer(i, 
+            positive_examples_collector=positives, 
+            negative_examples_collector=negatives)
+
+            res = collection[i].resynthesize(self.data)
+
+            results[i] = res
+
+        return results
 
     def test(self):
         pos_count = 0
