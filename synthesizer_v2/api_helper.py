@@ -1,3 +1,4 @@
+from __future__ import annotations
 from synthesizer_v2.linear_network import patterns_against_examples, train_linear_mode
 from synthesizer_v2.penality_based_threaded import Synthesizer
 from synthesizer_v2.helpers import dict_hash
@@ -5,6 +6,8 @@ from synthesizer_v2.helpers import get_patterns
 import pandas as pd
 import json
 import spacy
+import numpy as np
+import random
 
 nlp = spacy.load("en_core_web_sm")
 
@@ -32,7 +35,7 @@ class ThemeSynthesizer:
         # labels = [self.labels[x] for x in ids]
         labels = [1]*len(self.positive_examples_collector.values()) + [0]*len(self.negative_examples_collector.values())
 
-        df = patterns_against_examples(file_name=f"cache/{file_name}.csv",patterns=list(pattern_set.keys()), examples=examples, ids=ids, labels=labels)
+        df = patterns_against_examples(file_name=f"cache/{self.theme_name}_{file_name}.csv",patterns=list(pattern_set.keys()), examples=examples, ids=ids, labels=labels)
         return df
     
     def resynthesize(self, data):
@@ -49,7 +52,8 @@ class APIHelper2:
     def __init__(self):
         self.positive_examples_collector = {}
         self.negative_examples_collector = {}
-        self.theme = "price_service"
+        self.theme = "hate_speech"
+        # self.theme = "price_service"
         self.data = pd.read_csv(f"examples/df/{self.theme}.csv")
         self.labels = {}
         self.theme_to_id = {}
@@ -95,14 +99,19 @@ class APIHelper2:
         #check if label already exisits in the oposite collector and remove if it does
         exists = id in self.labels
         if(exists):
-            previous_label = self.labels[id]
-            del self.themeid_to_examples_collector[previous_label][id]
-        
-        self.labels[id] = theme_id
+            # previous_label = self.labels[id]
+            # del self.themeid_to_examples_collector[previous_label][id]
+            self.labels[id].append(theme_id)
+        else:
+             self.labels[id] = [theme_id]
         sentence = nlp(self.data[self.data["id"] == int(id)]["example"].values[0])
         self.themeid_to_examples_collector[theme_id][id] = sentence
         
         print(self.themeid_to_examples_collector)
+        return {"status":200, "message":"ok"}
+    
+    def remove_label(self, id, label):
+
         return {"status":200, "message":"ok"}
     
     def clear_label(self):
@@ -124,7 +133,7 @@ class APIHelper2:
             item["example"] = self.data[self.data["id"] == i]["example"].values[0]
             item["true_label"] = self.data[self.data["id"] == i]["label"].values.tolist()[0]
             if(str(i) in self.labels):
-                item["user_label"] = self.id_to_theme[self.labels[str(i)]]
+                item["user_label"] = [self.id_to_theme[x] for x in self.labels[str(i)]]
             else:
                 item["user_label"] = None
             # print()
@@ -183,7 +192,15 @@ class APIHelper2:
             results[i] = res
 
         return results
-
+    
+    def get_next_data(self):
+        self.clear_label()
+        if(self.theme=="hate_speech"):
+            self.theme ="price_service"
+        elif(self.theme=="price_service"):
+            self.theme = "hate_speech"
+        self.data = pd.read_csv(f"examples/df/{self.theme}.csv")
+        return self.get_labeled_dataset()
     def test(self):
         pos_count = 0
         neg_count = 0
@@ -200,34 +217,162 @@ class APIHelper2:
         results = self.resyntesize()
         return results
     def testing_cache(self):
-        pos_count = 0
-        neg_count = 0
-        collector = []
-        annotation = {"1":1, "2":1, "3":0, "4":0, "5":0,"6":1, "7":1, "8":0, "9":0, "10":1 ,"11":1,"12":1, "13":1, "14":1, "15":0, "16":0, "17":0, "18":0, "19":1, "20":1, "22":1, "23":1, "24":0, "25": 0 }
+
         self.clear_label()
-        for i in annotation.keys():
 
-            lbl = self.data[self.data["id"]==int(i)]["positive"].tolist()[0]
+        self.add_theme("offensive")
+        self.add_theme("hate")
+        self.add_theme("none")
+
+
+        price_count = 0
+        service_count = 0
+        environment_count = 0
+        collector = []
+        
+        ids = [str(x) for x in random.sample(range(0, 600), 60)]
+        annotation = []
+        for id in ids:
+            annotation.append(self.data[self.data["id"]==int(id)]["label"].values[0])
+        # annotation = {"0":"price", "1":"price"}#, "2":"price", "3":"service", "4":"service", "5":"price", "7":"price", "14":"environment", "22":"environment", "16":"service", "15":"service",  "23":"service", "30":"price", "31":"price",  "33":"price",  "34":"price", "37":"service", "38":"service", "39":"environment" }
+        
+        for i, lbl in zip(ids, annotation):
+
             self.labeler(i, lbl)
-            if lbl ==1:
-                pos_count+=1
-            elif lbl==0:
-                neg_count+=1
-            print(self.labels)
+            if lbl =="offensive":
+                price_count+=1
+            elif lbl=="hate":
+                service_count+=1
+            elif lbl=="none":
+                environment_count+=1
             
-            results = self.resyntesize()
-            temp = dict()
-            temp["fscore"] = results["fscore"]
-            temp["recall"] = results["recall"]
-            temp["precision"] = results["precision"]
+            print(self.themeid_to_examples_collector)
+            
 
-            temp["overall_fscore"] = results["overall_fscore"]
-            temp["overall_recall"] = results["overall_recall"]
-            temp["overall_precision"] = results["overall_precision"]
+            temp = self.resyntesize()
+            # temp = dict()
+            # temp["fscore"] = results["fscore"]
+            # temp["recall"] = results["recall"]
+            # temp["precision"] = results["precision"]
 
-            temp["positive_annotated"] = pos_count
-            temp["negative_annotated"] = neg_count
+            # temp["overall_fscore"] = results["overall_fscore"]
+            # temp["overall_recall"] = results["overall_recall"]
+            # temp["overall_precision"] = results["overall_precision"]
+
+            temp["offensive_count"] = price_count
+            temp["hate_count"] = service_count
+            temp["none_count"] = environment_count
             collector.append(temp)
+        with open('results_40_may18.json', 'w') as f:
+            json.dump(collector, f)
+
+
+        return collector
+    
+    def testing_label_ordering(self):
+
+        self.clear_label()
+
+        # self.add_theme("price")
+        # self.add_theme("service")
+        # self.add_theme("environment")
+
+        self.add_theme("offensive")
+        self.add_theme("hate")
+        self.add_theme("none")
+
+
+        price_count = 0
+        service_count = 0
+        environment_count = 0
+        collector = []
+        
+        ids = [str(x) for x in random.sample(range(0, self.data.shape[0]), 5)] #Get 5 annotations randomly first
+        annotation = []
+        for id in ids:
+            annotation.append(self.data[self.data["id"]==int(id)]["label"].values[0])
+        
+        for i, lbl in zip(ids, annotation):
+
+            # self.labeler(i, lbl)
+            # if lbl =="price":
+            #     price_count+=1
+            # elif lbl=="service":
+            #     service_count+=1
+            # elif lbl=="environment":
+            #     environment_count+=1
+            
+            if lbl =="offensive":
+                price_count+=1
+            elif lbl=="hate":
+                service_count+=1
+            elif lbl=="none":
+                environment_count+=1
+
+            print(self.themeid_to_examples_collector)
+        
+        for x in range(25):
+            print("Starting synthesizing")
+            temp = self.resyntesize() #Synthesize and annotate next batch of 5 based on the prediction
+            print("Finishing synthesizing")
+
+            next_batch = []
+
+            # k= 5
+            # for i in temp:
+            #     arr = np.asarray(temp[i]["scores"])
+                
+            #     idd = np.argpartition(arr, len(arr) - k)[-k:]
+                # next_batch += idd.tolist()
+            next_batch = [str(x) for x in random.sample(range(0, self.data.shape[0]), 5)]
+
+            annotation = []
+            for id in next_batch:
+                annotation.append(self.data[self.data["id"]==int(id)]["label"].values[0])
+
+            ############ 
+            # 
+
+            # temp["price_count"] = price_count
+            # temp["service_count"] = service_count
+            # temp["environment_count"] = environment_count  
+
+
+            temp["offensive_count"] = price_count
+            temp["hate_count"] = service_count
+            temp["none_count"] = environment_count
+            examples = {self.id_to_theme[k]:str(v) for k,v in self.themeid_to_examples_collector.items() }
+            
+            temp["annotated"] = examples
+
+            collector.append(temp)
+
+            # print(self.themeid_to_examples_collector)
+            # print(collector)
+
+            ############
+
+            for i, lbl in zip(next_batch, annotation):
+
+                self.labeler(i, lbl)
+
+                # if lbl =="price":
+                #     price_count+=1
+                # elif lbl=="service":
+                #     service_count+=1
+                # elif lbl=="environment":
+                #     environment_count+=1
+
+
+                if lbl =="offensive":
+                    price_count+=1
+                elif lbl=="hate":
+                    service_count+=1
+                elif lbl=="none":
+                    environment_count+=1
+                
+        with open('results_collector/hate_random_selection_thresh_09.json', 'w') as f:
+            json.dump(collector, f)
 
 
         return collector

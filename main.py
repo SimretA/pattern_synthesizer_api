@@ -47,9 +47,17 @@ async def cpmbinedpatterns():
 async def patterns():
     return api_helper2.all_patterns()
 
+@app.get("/v2/next_dataset")
+async def next_dataset():
+    return api_helper2.get_next_data()
+
 @app.get("/v2/testing_cache")
 async def testing_patterns():
     return api_helper2.testing_cache()
+
+@app.get("/v2/testing_ordering")
+async def testing_ordering():
+    return api_helper2.testing_label_ordering()
 
 
 
@@ -83,7 +91,7 @@ async def patterns():
 
 @app.get("/testing_cache")
 async def testing_patterns():
-    return api_helper.testing_cache()
+    return api_helper.testing_cache_new()
 
 
 def main():

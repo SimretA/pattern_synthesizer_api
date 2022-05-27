@@ -131,7 +131,7 @@ class Synthesizer:
                 fscore = 2*(recall*precision)/(recall+precision)
             except:
                 fscore = 0
-            if(reward<0.1 or penality>0.6):
+            if(reward<0.1 or penality>0.3):
                 #We know that the previous pattern was working because it got this far without being pruned so we add to the list of candidates
                 if(len(pat)>2 and pat[-1]=="*"):
                     # patterns_set.add(pat[:-2])

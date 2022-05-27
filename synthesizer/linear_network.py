@@ -113,6 +113,7 @@ def train_linear_mode(df, price):
     entire_dataset_ins = torch.Tensor(running_result)
 
     entire_dataset_outs = torch.Tensor(price["positive"].values).reshape(-1,1)
+    
 
     print(entire_dataset_ins.shape)
 

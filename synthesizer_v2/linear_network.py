@@ -5,6 +5,7 @@ import torch
 from sklearn.feature_selection import SelectKBest
 from sklearn.feature_selection import chi2
 from sklearn.feature_selection import f_classif
+from sklearn.feature_selection import VarianceThreshold
 
 from sklearn.metrics import precision_recall_fscore_support
 
@@ -51,18 +52,58 @@ def patterns_against_examples(file_name, patterns, examples, ids, labels):
     df.to_csv(file_name)
     return df
 
+# define df, columns, true labels
+def feature_selector(df):
+    remaining_cols = df.columns.values[4:]
+    labels = df['labels']
+    patterns_selected = []
+    i = 0
+    while len(patterns_selected)<10 and len(remaining_cols)>0:
+        i += 1
+        print(f"Starting iteration {i} {len(remaining_cols)}")
+        #first calculate the fscore
+        collector = {}
+        for col in remaining_cols:
+            col_selected = df[col]
+            fscore = precision_recall_fscore_support(labels, col_selected,  average="binary")[2]
+            collector[col] =  fscore
+        
+        #sort and get a pattern with high fscore
+        collector = {k: v for k, v in sorted(collector.items(), key=lambda item: item[1])}
+        selected_starter_pattern = list(collector.keys())[-1]
+        selected_starter_series = df[selected_starter_pattern]
+        patterns_selected.append(selected_starter_pattern)
+        print(selected_starter_pattern, collector[selected_starter_pattern])
+        
+        #get rid of all correlated patterns
+        corr = df.corr()
+        to_drop = [c for c in corr.columns if corr[selected_starter_pattern][c] >= 0.9] #0.9 chosen at random
+        
+        df = df.drop(to_drop, axis=1)
+        print
+
+        #create a new df with combination of current one
+        remaining_cols = df.columns.values[4:]
+        for coll in remaining_cols:
+            df[coll] = np.logical_or(df[coll], selected_starter_series)
+        
+        print(f"Finishing iteration {i} {len(remaining_cols)}")
+    return patterns_selected
+
 
 def train_linear_mode(df, price):
-    inputs = df.iloc[:,3:].values
+
+
     outs = df["labels"].values
 
 
-    selector = SelectKBest(f_classif, k=5)
-    X_new = selector.fit_transform(inputs, outs)
-    cols = selector.get_support(indices=True)
-    # cols = [x for x in range(inputs.shape[1])]
-    
-    smaller_inputs = np.take(inputs, cols, axis=1)
+
+    cols = feature_selector(df)
+   
+
+
+    # smaller_inputs = np.take(inputs, cols, axis=1)
+    smaller_inputs =  df[cols].values
 
 
     ins = torch.tensor(smaller_inputs)
@@ -96,7 +137,8 @@ def train_linear_mode(df, price):
 
     labeled_prf = precision_recall_fscore_support(outs, pred, average="binary")
 
-    selected_patterns = np.take(df.columns.values,[x+3 for x in cols] )
+    # selected_patterns = np.take(df.columns.values,[x+3 for x in cols] )
+    selected_patterns = cols
     selected_working_list = []
     for pattern in selected_patterns:
         selected_working_list.append(expand_working_list(pattern))
@@ -128,7 +170,7 @@ def train_linear_mode(df, price):
     patterns =[]
     for i in range(len(cols)):
         temp = dict()
-        prf = precision_recall_fscore_support(output, df.iloc[:, cols[i]+3], average="binary" )
+        prf = precision_recall_fscore_support(output, df[ cols[i]], average="binary" )
         temp["pattern"] = selected_patterns[i]
         temp["precision"] = prf[0]
         temp["recall"] = prf[1]
@@ -144,6 +186,7 @@ def train_linear_mode(df, price):
     response["overall_fscore"] = overall_prf[2]
     response["overall_recall"] = overall_prf[1]
     response["overall_precision"] = overall_prf[0]
+    
 
 
     response["patterns"] = patterns

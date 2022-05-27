@@ -6,7 +6,7 @@ from synthesizer.helpers import match_positives
 from synthesizer.helpers import show_patters
 
 
-nlp = spacy.load("en_core_web_sm")
+
 
 class Synthesizer:
     def __init__(self, positive_examples, negative_examples=None, threshold=0.5,literal_threshold=4, max_depth=10) -> None:
@@ -90,7 +90,7 @@ class Synthesizer:
                 if(p.type_==WILD):
                     continue
                 working_pattern = f"{pat}|{p.value_1}"
-                print("Expanding pattern with or -------- ",working_pattern)
+                # print("Expanding pattern with or -------- ",working_pattern)
             else:
                 if(pat != ""):
                     working_pattern = f"{pat}+{p.value_1}"
@@ -131,7 +131,7 @@ class Synthesizer:
                 fscore = 2*(recall*precision)/(recall+precision)
             except:
                 fscore = 0
-            if(reward<0.1 or penality>0.6):
+            if(reward<0.1 or penality>0.4):
                 #We know that the previous pattern was working because it got this far without being pruned so we add to the list of candidates
                 if(len(pat)>2 and pat[-1]=="*"):
                     # patterns_set.add(pat[:-2])
@@ -153,14 +153,14 @@ class Synthesizer:
 
             else:
                 if(make_or):
-                    print("Stopping here ", working_pattern, previous_positive_matched, postive_match_count)
+                    # print("Stopping here ", working_pattern, previous_positive_matched, postive_match_count)
                     continue
                 if(postive_match_count==0):
                     #No need to go on
                     continue
                 if(postive_match_count==previous_positive_matched):
                     if(pat!="" ):
-                        print(f"pat {pat} with {p.value_1}")
+                        # print(f"pat {pat} with {p.value_1}")
                         
                         self.search(working_pattern, previous_positive_matched=postive_match_count, previous_negative_matched=negative_match_count, depth=depth+1, search_space=new_search_space)
                 else:

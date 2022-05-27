@@ -5,6 +5,7 @@ from synthesizer.helpers import get_patterns
 import pandas as pd
 import json
 import spacy
+import random
 
 nlp = spacy.load("en_core_web_sm")
         
@@ -14,6 +15,9 @@ class APIHelper:
         self.positive_examples_collector = {}
         self.negative_examples_collector = {}
         self.theme = "price_service"
+
+        # self.theme = "hate_speech_binary"
+
         self.data = pd.read_csv(f"examples/df/{self.theme}.csv")
         self.labels = {}
         self.themes = {}
@@ -178,6 +182,50 @@ class APIHelper:
             temp["positive_annotated"] = pos_count
             temp["negative_annotated"] = neg_count
             collector.append(temp)
+
+
+        return collector
+
+
+
+    def testing_cache_new(self):
+        pos_count = 0
+        neg_count = 0
+        collector = []
+        # annotation = {"1":1, "2":1, "3":0, "4":0, "5":0,"6":1, "7":1, "8":0, "9":0, "10":1 ,"11":1,"12":1, "13":1, "14":1, "15":0, "16":0, "17":0, "18":0, "19":1, "20":1, "22":1, "23":1, "24":0, "25": 0 }
+        self.clear_label()
+
+        ids = random.sample(range(0, 600), 50)
+        annotation = []
+        for id in ids:
+            annotation.append(self.data[self.data["id"]==id]["positive"].values[0])
+        for i, lbl in zip(ids, annotation):
+
+            # lbl = self.data[self.data["id"]==int(i)]["positive"].tolist()[0]
+            self.labeler(str(i), int(lbl))
+            if lbl ==1:
+                pos_count+=1
+            elif lbl==0:
+                neg_count+=1
+            print(self.labels)
+            
+            results = self.resyntesize()
+            
+            temp = dict()
+            temp["fscore"] = results["fscore"]
+            temp["recall"] = results["recall"]
+            temp["precision"] = results["precision"]
+
+            temp["overall_fscore"] = results["overall_fscore"]
+            temp["overall_recall"] = results["overall_recall"]
+            temp["overall_precision"] = results["overall_precision"]
+
+            temp["positive_annotated"] = pos_count
+            temp["negative_annotated"] = neg_count
+            collector.append(temp)
+        
+        with open('results_20_binary_take2.json', 'w') as f:
+            json.dump(collector, f)
 
 
         return collector
