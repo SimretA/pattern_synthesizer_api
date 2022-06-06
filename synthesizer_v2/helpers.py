@@ -17,7 +17,7 @@ def get_patterns(df, labels, chosenpatterns=None):
     cols = df.columns.tolist()
     for i in range(3, df.shape[1]):
         temp = dict()
-        prf = precision_recall_fscore_support(df["labels"], df.iloc[:, i], average="binary" ) 
+        prf = precision_recall_fscore_support(labels, df.iloc[:, i], average="binary" ) 
         temp["pattern"] = cols[i]
         temp["precision"] = prf[0]
         temp["recall"] = prf[1]

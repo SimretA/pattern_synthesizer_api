@@ -61,7 +61,7 @@ class APIHelper:
                 del self.positive_examples_collector[id]
         
         self.labels[id] = label
-        sentence = nlp(self.data[self.data["id"] == int(id)]["example"].values[0])
+        sentence = nlp(self.data[self.data["id"] == id]["example"].values[0])
         if(label==0):
             self.negative_examples_collector[id] = sentence
         elif label==1:
@@ -138,21 +138,6 @@ class APIHelper:
         res = train_linear_mode(df=df, price=self.data)
         return res
 
-    def test(self):
-        pos_count = 0
-        neg_count = 0
-        collector = []
-        annotation = {"1":1, "2":1, "3":0, "4":0, "5":0}#,"6":1, "7":1, "8":0, "9":0, "10":1 ,"11":1,"12":1, "13":1, "14":1, "15":0, "16":0, "17":0, "18":0, "19":1, "20":1, "22":1, "23":1, "24":0, "25": 0 }
-        self.clear_label()
-        for i in annotation.keys():
-            self.labeler(i, annotation[i])
-            if annotation[i] ==1:
-                pos_count+=1
-            elif annotation[i]==0:
-                neg_count+=1
-            print(self.labels)
-        results = self.resyntesize()
-        return results
     def testing_cache(self):
         pos_count = 0
         neg_count = 0
@@ -186,13 +171,87 @@ class APIHelper:
 
         return collector
 
+    def run_test(self, iteration, no_annotation):
+        self.clear_label()
+        pos_count = 0
+        neg_count = 0
+        collector = []
+        self.clear_label()
+
+        all_ids  = self.data["id"].values.tolist()
+
+        ids = random.sample(all_ids, no_annotation)
+        annotation = []
+        for id in ids:
+            annotation.append(self.data[self.data["id"]==id]["positive"].values[0])
+        
+            for i, lbl in zip(ids, annotation):
+                self.labeler(str(i), int(lbl))
+
+                if lbl ==1:
+                    pos_count+=1
+                elif lbl==0:
+                    neg_count+=1
+        print(self.labels)
+        for x in range(iteration):
+            print("Starting Synthesizing")
+            results = self.resyntesize()
+
+            print("Finishing Synthesizing")
+            
+                
+
+
+            ids = [str(x) for x in random.sample(all_ids, no_annotation)]
+
+            annotation = []
+            for id in ids:
+                # all_ids.remove(id)
+                annotation.append(self.data[self.data["id"]==id]["positive"].values[0])
+
+
+            # temp = dict()
+            # temp["fscore"] = results["fscore"]
+            # temp["recall"] = results["recall"]
+            # temp["precision"] = results["precision"]
+
+            # temp["overall_fscore"] = results["overall_fscore"]
+            # temp["overall_recall"] = results["overall_recall"]
+            # temp["overall_precision"] = results["overall_precision"]
+
+            results["positive_annotated"] = len(list(self.positive_examples_collector.keys()))
+            results["negative_annotated"] = len(list(self.negative_examples_collector.keys()))
+
+            
+            results["positive_annotated_examples"] = [str(x) for x in self.positive_examples_collector.values()]
+
+            results["negative_annotated_examples"] = [str(x) for x in self.negative_examples_collector.values()]
+
+
+            collector.append(results)
+
+
+            for i, lbl in zip(ids, annotation):
+                self.labeler(str(i), int(lbl))
+
+                if lbl ==1:
+                    pos_count+=1
+                elif lbl==0:
+                    neg_count+=1
+        
+        with open('results/test_results.json', 'w') as f:
+            json.dump(collector, f)
+
+
+        return collector
+
+        
 
 
     def testing_cache_new(self):
         pos_count = 0
         neg_count = 0
         collector = []
-        # annotation = {"1":1, "2":1, "3":0, "4":0, "5":0,"6":1, "7":1, "8":0, "9":0, "10":1 ,"11":1,"12":1, "13":1, "14":1, "15":0, "16":0, "17":0, "18":0, "19":1, "20":1, "22":1, "23":1, "24":0, "25": 0 }
         self.clear_label()
 
         ids = random.sample(range(0, 600), 50)
@@ -201,7 +260,6 @@ class APIHelper:
             annotation.append(self.data[self.data["id"]==id]["positive"].values[0])
         for i, lbl in zip(ids, annotation):
 
-            # lbl = self.data[self.data["id"]==int(i)]["positive"].tolist()[0]
             self.labeler(str(i), int(lbl))
             if lbl ==1:
                 pos_count+=1

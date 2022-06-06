@@ -12,10 +12,11 @@ import random
 nlp = spacy.load("en_core_web_sm")
 
 class ThemeSynthesizer:
-    def __init__(self, theme_name, positive_examples_collector, negative_examples_collector ):
+    def __init__(self, theme_name, positive_examples_collector, negative_examples_collector, labels={}):
         self.theme_name = theme_name
         self.positive_examples_collector = positive_examples_collector
         self.negative_examples_collector = negative_examples_collector
+        self.all_patterns = None
         self.labels = {}
         self.sytnthesizer = None
         self.patterns = None
@@ -30,6 +31,7 @@ class ThemeSynthesizer:
 
     def save_cache(self, pattern_set):
         file_name = dict_hash(self.labels)
+        print("file name is ", file_name)
         examples = list(self.positive_examples_collector.values())+list(self.negative_examples_collector.values())
         ids = list(self.positive_examples_collector.keys())+list(self.negative_examples_collector.keys())
         # labels = [self.labels[x] for x in ids]
@@ -39,21 +41,35 @@ class ThemeSynthesizer:
         return df
     
     def resynthesize(self, data):
-        data["positive"] = data["label"].apply(lambda x: 1 if x==self.theme_name else 0)
-        self.sytnthesizer = Synthesizer(positive_examples = list(self.positive_examples_collector.values()), negative_examples = list(self.negative_examples_collector.values()))
-        self.sytnthesizer.find_patters()
-        df = self.save_cache(self.sytnthesizer.patterns_set)
+        file_name = dict_hash(self.labels)
+        try:
+            df = pd.read_csv(f"cache/{self.theme_name}_{file_name}.csv")
+        except:
+                
+            data["positive"] = data["label"].apply(lambda x: 1 if x==self.theme_name else 0)
+            print("DEBUGING, ", self.theme_name, data["positive"].values )
+            self.sytnthesizer = Synthesizer(positive_examples = list(self.positive_examples_collector.values()), negative_examples = list(self.negative_examples_collector.values()))
+            self.sytnthesizer.find_patters()
+            self.patterns = self.sytnthesizer.patterns_set
+            df = self.save_cache(self.sytnthesizer.patterns_set)
+        all_patterns = get_patterns(df, df["labels"].values)
+        # print("All patterns ",all_patterns)
+
         result = train_linear_mode(df=df, price=data)
         self.meta = res = result[1]
         self.linear_model = result[0] 
+        res["all_patterns"] = all_patterns
+
         return res
 
 class APIHelper2:
     def __init__(self):
         self.positive_examples_collector = {}
         self.negative_examples_collector = {}
-        self.theme = "hate_speech"
-        # self.theme = "price_service"
+        # self.theme = "hatexplain"
+        # self.theme = "hate_speech"
+        self.theme = "price_service"
+        # self.theme = "hatexplain_small"
         self.data = pd.read_csv(f"examples/df/{self.theme}.csv")
         self.labels = {}
         self.theme_to_id = {}
@@ -92,11 +108,13 @@ class APIHelper2:
     def labeler(self, id, label):
         #check if label exists in themes
         if(label not in self.theme_to_id):
-            return {"Error": "Theme does not exist"}
+            self.add_theme(label)
+            print("Theme added")
+            # return {"Error": "Theme does not exist"}
         
         theme_id = self.theme_to_id[label]
 
-        #check if label already exisits in the oposite collector and remove if it does
+        #check if label already exisits in the collector
         exists = id in self.labels
         if(exists):
             # previous_label = self.labels[id]
@@ -104,10 +122,12 @@ class APIHelper2:
             self.labels[id].append(theme_id)
         else:
              self.labels[id] = [theme_id]
-        sentence = nlp(self.data[self.data["id"] == int(id)]["example"].values[0])
+        sentence = nlp(self.data[self.data["id"] == id]["example"].values[0])
+        
+
         self.themeid_to_examples_collector[theme_id][id] = sentence
         
-        print(self.themeid_to_examples_collector)
+        
         return {"status":200, "message":"ok"}
     
     def remove_label(self, id, label):
@@ -117,6 +137,8 @@ class APIHelper2:
     def clear_label(self):
         self.labels.clear()
         self.themeid_to_examples_collector.clear()
+        self.theme_to_id.clear()
+        self.id_to_theme.clear()
 
         return {"message":"okay", "status":200}
 
@@ -144,7 +166,7 @@ class APIHelper2:
         return dataset
 
     def all_patterns(self):
-        if len(self.labels.keys())==0 or len(self.positive_examples_collector.keys())==0:
+        if len(self.labels.keys())==0 or len(self.themeid_to_examples_collector.keys())==0:
             return {"message":"Nothing labeled yet"}
 
         #Check if data is in the chache
@@ -167,6 +189,7 @@ class APIHelper2:
 
         collection = {}
         results = {}
+        print(self.themeid_to_examples_collector)
 
         for i in self.theme_to_id:
             id = self.theme_to_id[i]
@@ -185,7 +208,8 @@ class APIHelper2:
 
             collection[i] = ThemeSynthesizer(i, 
             positive_examples_collector=positives, 
-            negative_examples_collector=negatives)
+            negative_examples_collector=negatives,
+            labels=self.themeid_to_examples_collector)
 
             res = collection[i].resynthesize(self.data)
 
@@ -233,7 +257,7 @@ class APIHelper2:
         ids = [str(x) for x in random.sample(range(0, 600), 60)]
         annotation = []
         for id in ids:
-            annotation.append(self.data[self.data["id"]==int(id)]["label"].values[0])
+            annotation.append(self.data[self.data["id"]==id]["label"].values[0])
         # annotation = {"0":"price", "1":"price"}#, "2":"price", "3":"service", "4":"service", "5":"price", "7":"price", "14":"environment", "22":"environment", "16":"service", "15":"service",  "23":"service", "30":"price", "31":"price",  "33":"price",  "34":"price", "37":"service", "38":"service", "39":"environment" }
         
         for i, lbl in zip(ids, annotation):
@@ -278,7 +302,8 @@ class APIHelper2:
         # self.add_theme("environment")
 
         self.add_theme("offensive")
-        self.add_theme("hate")
+        self.add_theme("hatespeech")
+        self.add_theme("normal")
         self.add_theme("none")
 
 
@@ -286,15 +311,19 @@ class APIHelper2:
         service_count = 0
         environment_count = 0
         collector = []
+        all_ids  = self.data["id"].values.tolist()
         
-        ids = [str(x) for x in random.sample(range(0, self.data.shape[0]), 5)] #Get 5 annotations randomly first
+        ids = [str(x) for x in random.sample(all_ids, 10)] #Get 5 annotations randomly first
         annotation = []
         for id in ids:
-            annotation.append(self.data[self.data["id"]==int(id)]["label"].values[0])
+            # all_ids.remove(id)
+
+            annotation.append(self.data[self.data["id"]==id]["label"].values[0])
         
+        print("Starting Annotation")
         for i, lbl in zip(ids, annotation):
 
-            # self.labeler(i, lbl)
+            self.labeler(i, lbl)
             # if lbl =="price":
             #     price_count+=1
             # elif lbl=="service":
@@ -304,14 +333,15 @@ class APIHelper2:
             
             if lbl =="offensive":
                 price_count+=1
-            elif lbl=="hate":
+            elif lbl=="hatespeech":
                 service_count+=1
-            elif lbl=="none":
+            elif lbl=="normal":
                 environment_count+=1
 
-            print(self.themeid_to_examples_collector)
+            # print(self.themeid_to_examples_collector)
+        print("Finishing Annotation")
         
-        for x in range(25):
+        for x in range(10):
             print("Starting synthesizing")
             temp = self.resyntesize() #Synthesize and annotate next batch of 5 based on the prediction
             print("Finishing synthesizing")
@@ -324,11 +354,13 @@ class APIHelper2:
                 
             #     idd = np.argpartition(arr, len(arr) - k)[-k:]
                 # next_batch += idd.tolist()
-            next_batch = [str(x) for x in random.sample(range(0, self.data.shape[0]), 5)]
+            next_batch = [str(x) for x in random.sample(all_ids, 10)]
+            # next_batch = []
 
             annotation = []
             for id in next_batch:
-                annotation.append(self.data[self.data["id"]==int(id)]["label"].values[0])
+                # all_ids.remove(id)
+                annotation.append(self.data[self.data["id"]==id]["label"].values[0])
 
             ############ 
             # 
@@ -366,15 +398,15 @@ class APIHelper2:
 
                 if lbl =="offensive":
                     price_count+=1
-                elif lbl=="hate":
+                elif lbl=="hatespeech":
                     service_count+=1
-                elif lbl=="none":
+                elif lbl=="normal":
                     environment_count+=1
                 
-        with open('results_collector/hate_random_selection_thresh_09.json', 'w') as f:
+        with open('results_collector/hatexplan_random_selection_take2.json', 'w') as f:
             json.dump(collector, f)
 
-
+ 
         return collector
 
 

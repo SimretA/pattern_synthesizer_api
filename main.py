@@ -93,6 +93,10 @@ async def patterns():
 async def testing_patterns():
     return api_helper.testing_cache_new()
 
+@app.get("/test/{iteration}/{annotation}")
+async def test(iteration:int, annotation: int):
+    return api_helper.run_test(iteration, annotation)
+
 
 def main():
     synthh = Synthesizer(positive_examples = "examples/price_big", negative_examples = "examples/not_price_big")

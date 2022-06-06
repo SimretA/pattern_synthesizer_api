@@ -111,7 +111,7 @@ class Synthesizer:
             #Get penalities for negative example matched and rewards for positive examples matched and decide to prune the branch
             # reward = (postive_match_count - previous_positive_matched)/len(positive_examples)
             try:
-
+                #Spacy20221s
                 reward = postive_match_count/(len(self.positive_examples)-previous_positive_matched)
             except:
                 reward = postive_match_count/len(self.positive_examples)
@@ -131,7 +131,7 @@ class Synthesizer:
                 fscore = 2*(recall*precision)/(recall+precision)
             except:
                 fscore = 0
-            if(reward<0.1 or penality>0.4):
+            if(reward<0.1 or penality>0.3):
                 #We know that the previous pattern was working because it got this far without being pruned so we add to the list of candidates
                 if(len(pat)>2 and pat[-1]=="*"):
                     # patterns_set.add(pat[:-2])
@@ -147,7 +147,7 @@ class Synthesizer:
 
             if(postive_match_count>previous_positive_matched and depth<10):
                 self.search(working_pattern, previous_positive_matched=postive_match_count, previous_negative_matched=negative_match_count, depth=depth+1, search_space=new_search_space)
-                if(previous_positive_matched==0 and postive_match_count<len(self.positive_examples)):
+                if(previous_positive_matched==0 and postive_match_count<len(self.positive_examples) or True):
                     #Search with an or too
                     self.search(working_pattern,  previous_positive_matched=postive_match_count, previous_negative_matched=negative_match_count, depth=depth+1, search_space=new_search_space, make_or=True)
 
