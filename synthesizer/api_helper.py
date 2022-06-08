@@ -67,7 +67,28 @@ class APIHelper:
         elif label==1:
             self.positive_examples_collector[id] = sentence
         
-        return {"status":200, "message":"ok"}
+        return {"status":200, "message":"ok", "id":id, "label":label}
+
+    def batch_label(self, id, label):
+        #check if label already exisits in the oposite collector and remove if it does
+        exists = id in self.labels
+        if(exists):
+            previous_label = self.labels[id]
+            if(previous_label==0):
+                # remove from negative_example_collectore
+                del self.negative_examples_collector[id]
+            else:
+                # remove from positive_example_collectore
+                del self.positive_examples_collector[id]
+        
+        self.labels[id] = label
+        sentence = nlp(self.data[self.data["id"] == id]["example"].values[0])
+        if(label==0):
+            self.negative_examples_collector[id] = sentence
+        elif label==1:
+            self.positive_examples_collector[id] = sentence
+        
+        return {"status":200, "message":"ok", "id":id, "label":label}
     
     def clear_label(self):
         self.labels.clear()
@@ -88,6 +109,7 @@ class APIHelper:
             item["id"] = str(i)
             item["example"] = self.data[self.data["id"] == i]["example"].values[0]
             item["true_label"] = self.data[self.data["id"] == i]["positive"].values.tolist()[0]
+            item["score"] = None
             if(str(i) in self.labels):
                 item["user_label"] = self.labels[str(i)]
             else:

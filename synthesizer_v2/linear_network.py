@@ -144,7 +144,6 @@ def feature_selector(df):
     remaining_cols = df.columns.values[4:]
 
 
-
     outputs = df["labels"].values
     while len(patterns_selected)<10 and len(remaining_cols)>0:
         jj += 1
