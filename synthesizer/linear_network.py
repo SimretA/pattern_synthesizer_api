@@ -92,7 +92,7 @@ def feature_selector(df):
         
         #get rid of all correlated patterns
         corr = df.corr()
-        corr.to_csv(f"{'hello'}.csv")
+        
         to_drop = [c for c in corr.columns if corr[selected_starter_pattern][c] >= 0.8 or corr[selected_starter_pattern][c] <= 0] #0.9 chosen at random
         to_drop.append(selected_starter_pattern)
         
