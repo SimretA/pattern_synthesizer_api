@@ -5,6 +5,16 @@ from synthesizer.penality_based_threaded import Synthesizer
 from fastapi.middleware.cors import CORSMiddleware
 
 import pandas as pd
+
+import random
+import torch
+import numpy as np
+
+random.seed(42)
+np.random.seed(42)
+torch.manual_seed(42)
+
+
 app = FastAPI()
 api_helper = APIHelper()
 api_helper2 = APIHelper2()

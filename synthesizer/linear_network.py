@@ -14,7 +14,11 @@ from spacy.matcher import Matcher
 nlp = spacy.load("en_core_web_sm")
 
 from synthesizer.helpers import expand_working_list
-import json
+
+
+
+import random
+
 
 def check_matching(sent, working_list, explain=False):
     matcher = Matcher(nlp.vocab)
@@ -75,9 +79,11 @@ def feature_selector(df):
         
         #sort and get a pattern with high fscore
         collector = {k: v for k, v in sorted(collector.items(), key=lambda item: item[1])}
+        
         selected_starter_pattern = list(collector.keys())[-1]
+        
         selected_fscore = list(collector.values())[-1]
-        if(selected_fscore<=current_fscore):
+        if(selected_fscore<current_fscore):
             break
         current_fscore = selected_fscore
         selected_starter_series = df[selected_starter_pattern]
@@ -86,14 +92,16 @@ def feature_selector(df):
         
         #get rid of all correlated patterns
         corr = df.corr()
-        to_drop = [c for c in corr.columns if corr[selected_starter_pattern][c] >= 0.8] #0.9 chosen at random
+        corr.to_csv(f"{'hello'}.csv")
+        to_drop = [c for c in corr.columns if corr[selected_starter_pattern][c] >= 0.8 or corr[selected_starter_pattern][c] <= 0] #0.9 chosen at random
+        to_drop.append(selected_starter_pattern)
         
         df = df.drop(to_drop, axis=1)
 
         #create a new df with combination of current one
         remaining_cols = df.columns.values[4:]
-        for coll in remaining_cols:
-            df[coll] = np.logical_or(df[coll], selected_starter_series)
+        # for coll in remaining_cols:
+        #     df[coll] = np.logical_or(df[coll], selected_starter_series)
         
         print(f"Finishing iteration {i} {len(remaining_cols)}")
     return patterns_selected
@@ -208,7 +216,12 @@ def train_linear_mode(df, price):
     response["patterns"] = patterns
     response["weights"] = net.weight.detach().numpy()[0].tolist()
 
+
+
     response["scores"] = { x:y[0] for x,y in zip(ids, overall_prob.tolist()) }
+
+    # response["scores"] = { x:random.uniform(0, 1) for x,y in zip(ids, overall_prob.tolist()) }
+
 
     return response
 

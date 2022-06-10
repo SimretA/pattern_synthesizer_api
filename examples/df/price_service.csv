@@ -1,195 +1,195 @@
-id,example,positive,label
-s0,"This particular location has a good check in deal.
+,id,example,positive,label
+0,s0,"This particular location has a good check in deal.
 ",1,price
-s1,"some of the items they sale here are a bit over priced but if you don't mind paying a bit extra this is the place to go. 
+1,s1,"some of the items they sale here are a bit over priced but if you don't mind paying a bit extra this is the place to go. 
 ",1,price
-s2,They have some great offers going on now with even 70% off on some items.,0,price
-s3,"Customer service told me "" nothing was rescheduled""
+2,s2,They have some great offers going on now with even 70% off on some items.,1,price
+3,s3,"Customer service told me "" nothing was rescheduled""
 ",0,service
-s4,"The woman told me that her manager said yes they have the calls recorded , but he will not listen to them , and that she was ' proceeding to cancel this call ' ..
+4,s4,"The woman told me that her manager said yes they have the calls recorded , but he will not listen to them , and that she was ' proceeding to cancel this call ' ..
 ",0,service
-s5,"Prices were reasonable and mission accomplished!
+5,s5,"Prices were reasonable and mission accomplished!
 ",1,price
-s6,50$ for buffet and mind you i only ate crab legs,0,none
-s7,"Unbelievable, it was me & my mother so it was a total of 100$ i could have gone to red lobster and ate better quality of food.",0,price
-s8,"A little expensive but I'll definitely be back time and time again
+6,s6,50$ for buffet and mind you i only ate crab legs,0,none
+7,s7,"Unbelievable, it was me & my mother so it was a total of 100$ i could have gone to red lobster and ate better quality of food.",1,price
+8,s8,"A little expensive but I'll definitely be back time and time again
 ",1,price
-s9,"This place is only worth your time if you are looking for discount designer jeans .
+9,s9,"This place is only worth your time if you are looking for discount designer jeans .
 ",1,price
-s10,"They have coupons discount for first second and third time customers through their website .
+10,s10,"They have coupons discount for first second and third time customers through their website .
 ",1,price
-s11,"Me : Then why did you tell me they were on discount ?
+11,s11,"Me : Then why did you tell me they were on discount ?
 ",1,price
-s12,Adult tickets are $ 13.50 but they have military discount .,1,price
-s13,"The staff is always friendly and they make you feel comfortable even when you're getting uncomfortable work done.
+12,s12,Adult tickets are $ 13.50 but they have military discount .,1,price
+13,s13,"The staff is always friendly and they make you feel comfortable even when you're getting uncomfortable work done.
 ",0,service
-s14,"Perfect little spot with healthy options and everything was so delicious.
+14,s14,"Perfect little spot with healthy options and everything was so delicious.
 ",0,environment
-s15,"Super quick food lines and attentive employees.
+15,s15,"Super quick food lines and attentive employees.
 ",0,service
-s16,"Staff is nice and would help to fulfill your requests.
+16,s16,"Staff is nice and would help to fulfill your requests.
 ",0,service
-s17,I 've been using this Discount Tire location for many years and for my last 3 vehicles .,1,price
-s18,"I love that for things you order regularly you can establish a standing order and get a 5 % discount ( milk , eggs , etc . ) .",1,price
-s19,"Prices vary so you have to shop around, but every once in a while you can find a really awesome deal.
+17,s17,I 've been using this Discount Tire location for many years and for my last 3 vehicles .,1,price
+18,s18,"I love that for things you order regularly you can establish a standing order and get a 5 % discount ( milk , eggs , etc . ) .",1,price
+19,s19,"Prices vary so you have to shop around, but every once in a while you can find a really awesome deal.
 ",1,price
-s20,"Too many other places to shop with better prices.
+20,s20,"Too many other places to shop with better prices.
 ",1,price
-s21,"I was looking for golf shoes, and found some that felt good and fit well but had no price.
+21,s21,"I was looking for golf shoes, and found some that felt good and fit well but had no price.
 ",1,price
-s22,"I sat outdoors and enjoyed the nice string lighting and music that was playing
+22,s22,"I sat outdoors and enjoyed the nice string lighting and music that was playing
 ",0,environment
-s23,"The food quality is average and their service is slower than slow
+23,s23,"The food quality is average and their service is slower than slow
 ",0,service
-s24,"The shoe was on special price so we got a good deal and bought the shoe as well!
+24,s24,"The shoe was on special price so we got a good deal and bought the shoe as well!
 ",1,price
-s25,"but they are more expensive than what I've paid in the past and what another shop charges
+25,s25,"but they are more expensive than what I've paid in the past and what another shop charges
 ",1,price
-s26,I purchased a Gibeon Meteorite and black zirconium wedding band from Rings Unique for approximately $1200.,1,price
-s27,"For the amenities and $ paid, it's small.
+26,s26,I purchased a Gibeon Meteorite and black zirconium wedding band from Rings Unique for approximately $1200.,1,price
+27,s27,"For the amenities and $ paid, it's small.
 ",1,price
-s28,I bought a Living Social deal $30 for $60 awhile back.,1,price
-s29,"Prices here are very reasonable!
+28,s28,I bought a Living Social deal $30 for $60 awhile back.,1,price
+29,s29,"Prices here are very reasonable!
 ",1,price
-s30,Only issue I have with this place is that they've raised their prices twice in the last year and now it's $2.10 for almost every plate which I think is very high for what you get,1,price
-s31,"For the money we paid (over 80 $ for 1 appetizer, 2 dinners, 2 drinks) we could not eat much",1,price
-s32,"Hence the food is way too pricey for what's offered
+30,s30,Only issue I have with this place is that they've raised their prices twice in the last year and now it's $2.10 for almost every plate which I think is very high for what you get,1,price
+31,s31,"For the money we paid (over 80 $ for 1 appetizer, 2 dinners, 2 drinks) we could not eat much",1,price
+32,s32,"Hence the food is way too pricey for what's offered
 ",1,price
-s33,"You get a much much larger portion for the same price at SFU (the bowl is over-flowing).
+33,s33,"You get a much much larger portion for the same price at SFU (the bowl is over-flowing).
 ",1,price
-s34,"Rodney and his crew gave us a great price and did the work so quick, literally, it was done before we knew it
+34,s34,"Rodney and his crew gave us a great price and did the work so quick, literally, it was done before we knew it
 ",1,price
-s35,"needless to say whomever told me this , is a genius .
+35,s35,"needless to say whomever told me this , is a genius .
 ",0,none
-s36,"My parents told me a horror story about their friends ' wedding photographer , who insisted on always getting the shot he wanted .
+36,s36,"My parents told me a horror story about their friends ' wedding photographer , who insisted on always getting the shot he wanted .
 ",0,none
-s37,We arrived at 6 pm and the employees told us the order was n't ready .,0,service
-s38,"She then decided that the only thing to do was be rude to me.
+37,s37,We arrived at 6 pm and the employees told us the order was n't ready .,0,service
+38,s38,"She then decided that the only thing to do was be rude to me.
 ",0,service
-s39,"the lines may be long at times
+39,s39,"the lines may be long at times
 ",0,environment
-s40,"I still believe he did n't want to help to sit us together and used poor judgement setting up the tables
+40,s40,"I still believe he did n't want to help to sit us together and used poor judgement setting up the tables
 ",0,service
-s41,It took the one and only waitress at least 1 hour to serve our food.,0,service
-s42,My phone screen was replaced in 30 minutes and looks great.,0,service
-s43,"All the instructors are friendly and helpful. 
+41,s41,It took the one and only waitress at least 1 hour to serve our food.,0,service
+42,s42,My phone screen was replaced in 30 minutes and looks great.,0,service
+43,s43,"All the instructors are friendly and helpful. 
 ",0,service
-s44,"When we were about to pay , the server handed us a bill and I reminded her that we were using the 1/2 off Scoutmob deal , so she took the bill back and came back with another that was pretty much the same except $ 8 difference ... REALLY ? ! ?",1,price
-s45,Only downside : three entrees served simultaneously but fourth ( beet/ goat cheese ravioli ) was 2 - 3 minutes later which allowed my accompaniments ( delicious creamy polenta ) to cool off to much .,1,price
-s46,"My other dining companions seemed pleased with their food ( one ordered a veal marsala that I did not try and the other - my favorite - ordered off the menu , actually , a request they were kind enough to accommodate - it was gnocchi caprese with pesto sauce instead of tomato sauce , and it was gooeyyummydelicious ) !
+44,s44,"When we were about to pay , the server handed us a bill and I reminded her that we were using the 1/2 off Scoutmob deal , so she took the bill back and came back with another that was pretty much the same except $ 8 difference ... REALLY ? ! ?",1,price
+45,s45,Only downside : three entrees served simultaneously but fourth ( beet/ goat cheese ravioli ) was 2 - 3 minutes later which allowed my accompaniments ( delicious creamy polenta ) to cool off to much .,1,price
+46,s46,"My other dining companions seemed pleased with their food ( one ordered a veal marsala that I did not try and the other - my favorite - ordered off the menu , actually , a request they were kind enough to accommodate - it was gnocchi caprese with pesto sauce instead of tomato sauce , and it was gooeyyummydelicious ) !
 ",1,price
-s47,"And they let me apply the discount to both of our tickets .
+47,s47,"And they let me apply the discount to both of our tickets .
 ",1,price
-s48,"I did end up finding the perfect doll.
+48,s48,"I did end up finding the perfect doll.
 ",0,none
-s49,"I love their location in LA and was hoping to get the great service I usually get when I shop over there.
+49,s49,"I love their location in LA and was hoping to get the great service I usually get when I shop over there.
 ",0,service
-s50,"The server (Scottie) I think was trying to hard to be funny and came across as rude and careless in my opinion.
+50,s50,"The server (Scottie) I think was trying to hard to be funny and came across as rude and careless in my opinion.
 ",0,service
-s51,"the interior is clean and has an almost perfect health rating
+51,s51,"the interior is clean and has an almost perfect health rating
 ",0,environment
-s52,"The manager and staff were friendly, which is always a nice bonus.
+52,s52,"The manager and staff were friendly, which is always a nice bonus.
 ",0,service
-s53,"Today we waited over ten minutes behind one car in the drive thru for their single order
+53,s53,"Today we waited over ten minutes behind one car in the drive thru for their single order
 ",0,service
-s54,"Fabulous service and awesome food
+54,s54,"Fabulous service and awesome food
 ",0,service
-s55,"The wait staff is attentive and knowledge
+55,s55,"The wait staff is attentive and knowledge
 ",0,service
-s56,"I am not from the area, and parking is tough
+56,s56,"I am not from the area, and parking is tough
 ",0,environment
-s57,"The only problem we really had was the ladies at the front office were sorta rude and looked annoyed at us.
+57,s57,"The only problem we really had was the ladies at the front office were sorta rude and looked annoyed at us.
 ",0,service
-s58,"This man is unstable and incompetent as a manager
+58,s58,"This man is unstable and incompetent as a manager
 ",0,service
-s59,"Environment is very open, clean and comfortable.
+59,s59,"Environment is very open, clean and comfortable.
 ",0,environment
-s60,"There's nothing striking about the environment or decor here, but do not leave without trying the dried, sautéed green beans
+60,s60,"There's nothing striking about the environment or decor here, but do not leave without trying the dried, sautéed green beans
 ",0,environment
-s61,"While he checked on the price (which seemed to take much more effort than it should have), I found the shoes on-line for almost half the price.
+61,s61,"While he checked on the price (which seemed to take much more effort than it should have), I found the shoes on-line for almost half the price.
 ",1,price
-s62,"Some of the items they sale here are a bit over priced
+62,s62,"Some of the items they sale here are a bit over priced
 ",1,price
-s63,"Service was awful, bathrooms were filthy and Wellesley's stupid blue law about requiring every patron to order food while drinking is absurb.
+63,s63,"Service was awful, bathrooms were filthy and Wellesley's stupid blue law about requiring every patron to order food while drinking is absurb.
 ",0,environment
-s64,"Our host Reinhold is so nice and gracious.
-",1,service
-s65,"The product itself is a repellent combination of over intense flavours
-",0,products
-s66,"The food is pretty good
-",0,environment
-s67,"The portion sizes here are gigantic....we ordered based on our hunger level and should have ordered one plate to share.
-",0,products
-s68,"The place was beautiful, immaculately clean, comfortable bedding (lovely sheets) and breakfast was delicious.
-",0,environment
-s69,"The attention to customers I observed to be very good and free computer use is available in the lobby.
-",1,service
-s70,"Parking can be a issue and they no longer have the dog pen.
-",0,environment
-s71,"Service isn't great either.
-",1,service
-s72,"The food is quite tasty, but the operation around is, let's say ""challenged"".
+64,s64,"Our host Reinhold is so nice and gracious.
 ",0,service
-s73,"Our server actually seemed annoyed that he had to talk with us... Just another table and more faces... More orders... Move it along. 
-",1,service
-s74,"Everyone is kind and professional, with no pretense.
-",1,service
-s75,"Give me a good waiter and decent food and it's hard to not impress.
-",1,service
-s76,"Everything fresh and all full of flavor.
+65,s65,"The product itself is a repellent combination of over intense flavours
 ",0,products
-s77,"The store was clean and well organized
+66,s66,"The food is pretty good
 ",0,environment
-s78,"Always helpful, always wonderful, always available. 
-",1,service
-s79,"It's such a modern restaurant but their dishes are authentic and super delicious
+67,s67,"The portion sizes here are gigantic....we ordered based on our hunger level and should have ordered one plate to share.
 ",0,products
-s80,"Do not eat here, it is unsanitary.
+68,s68,"The place was beautiful, immaculately clean, comfortable bedding (lovely sheets) and breakfast was delicious.
 ",0,environment
-s81,"Great service at lunch.
-",1,service
-s82,slow but courteous.,1,service
-s83,Slowest coffee shop I've been to in boston. Took 15 minutes for me to get a breakfast sandwich.,1,service
-s84,"For the price I paid, I get more with a vist to another fast food competitor.",0,price
-s85,Overpriced wanna be burger and brew place.,0,price
-s86,"Friendly w/great customer service, reasonable prices, and a chill atmosphere
-",1,service
-s87,"the Pork Belly rice is also really good
-",0,products
-s88,"This is the best sushi in town
-",0,products
-s89,"I cannot believe someone was not satisfied with the quality of the chicken at this location!
-",0,products
-s90,"The manager that did my nails has the worst personality.
-",1,service
-s91,"disappointed in the fact they don't tell you the price
-",1,service
-s92,"there is no sense of urgency of your time at all
-",1,service
-s93,"Well, massively disappointed with this place. Fries were cold, I mean 5 HOUR cold!! The burger? Smashed together like they were trying to save space in bvb yge bag.",1,products
-s94,"Service exceptional. Continuously filling waters, etc.
-",1,service
-s95,"Everything we tried so far was delicious!
-",0,products
-s96,"There was a nice beer and cocktail list to choose from as well. 
-",0,products
-s97,"the waiter was friendly and helpful
-",1,service
-s98,"Customer service told me """" nothing was rescheduled""""
-",1,service
-s99,"There is usually no wait for lunch but it can take really long to get a table at night (they don´t take reservations). 
-",1,service
-s100,"The rooms are nice, spacious and cozy. The huge 42 inch flat screen TV mounted to the wall made it covienent to watch TV from the cozy sectional or while in bed",0,environment
-s101,"I tried to contact them through the app and website and still haven't heard back.
-",1,service
-s102,"The waiter was also really nice and the atmosphere is beautiful. 
-",1,service
-s103,Large selection of dishes for under $9 and there is tons of food.,0,price
-s104,"Lots of free parking in the rear of the restaurant.  
+69,s69,"The attention to customers I observed to be very good and free computer use is available in the lobby.
+",0,service
+70,s70,"Parking can be a issue and they no longer have the dog pen.
 ",0,environment
-s105,The waiting  staff were very nice.,0,service
-s106,Very dark and stylish and clearly they were aiming for something of a cross between a club feel date night and just a nice evening out that you would like to bring someone special.,0,environment
-s107,Very very friendly and they made an effort with us.,0,service
-s108,This mall actually feels like one in Las Vegas.,0,environment
-s109,Horrible service attitude.,0,service
-s110,The server was cold and seemingly uninterested in making our experience pleasant,0,service
+71,s71,"Service isn't great either.
+",0,service
+72,s72,"The food is quite tasty, but the operation around is, let's say ""challenged"".
+",0,service
+73,s73,"Our server actually seemed annoyed that he had to talk with us... Just another table and more faces... More orders... Move it along. 
+",0,service
+74,s74,"Everyone is kind and professional, with no pretense.
+",0,service
+75,s75,"Give me a good waiter and decent food and it's hard to not impress.
+",0,service
+76,s76,"Everything fresh and all full of flavor.
+",0,products
+77,s77,"The store was clean and well organized
+",0,environment
+78,s78,"Always helpful, always wonderful, always available. 
+",0,service
+79,s79,"It's such a modern restaurant but their dishes are authentic and super delicious
+",0,products
+80,s80,"Do not eat here, it is unsanitary.
+",0,environment
+81,s81,"Great service at lunch.
+",0,service
+82,s82,slow but courteous.,0,service
+83,s83,Slowest coffee shop I've been to in boston. Took 15 minutes for me to get a breakfast sandwich.,0,service
+84,s84,"For the price I paid, I get more with a vist to another fast food competitor.",1,price
+85,s85,Overpriced wanna be burger and brew place.,1,price
+86,s86,"Friendly w/great customer service, reasonable prices, and a chill atmosphere
+",0,service
+87,s87,"the Pork Belly rice is also really good
+",0,products
+88,s88,"This is the best sushi in town
+",0,products
+89,s89,"I cannot believe someone was not satisfied with the quality of the chicken at this location!
+",0,products
+90,s90,"The manager that did my nails has the worst personality.
+",0,service
+91,s91,"disappointed in the fact they don't tell you the price
+",0,service
+92,s92,"there is no sense of urgency of your time at all
+",0,service
+93,s93,"Well, massively disappointed with this place. Fries were cold, I mean 5 HOUR cold!! The burger? Smashed together like they were trying to save space in bvb yge bag.",0,products
+94,s94,"Service exceptional. Continuously filling waters, etc.
+",0,service
+95,s95,"Everything we tried so far was delicious!
+",0,products
+96,s96,"There was a nice beer and cocktail list to choose from as well. 
+",0,products
+97,s97,"the waiter was friendly and helpful
+",0,service
+98,s98,"Customer service told me """" nothing was rescheduled""""
+",0,service
+99,s99,"There is usually no wait for lunch but it can take really long to get a table at night (they don´t take reservations). 
+",0,service
+100,s100,"The rooms are nice, spacious and cozy. The huge 42 inch flat screen TV mounted to the wall made it covienent to watch TV from the cozy sectional or while in bed",0,environment
+101,s101,"I tried to contact them through the app and website and still haven't heard back.
+",0,service
+102,s102,"The waiter was also really nice and the atmosphere is beautiful. 
+",0,service
+103,s103,Large selection of dishes for under $9 and there is tons of food.,1,price
+104,s104,"Lots of free parking in the rear of the restaurant.  
+",0,environment
+105,s105,The waiting  staff were very nice.,0,service
+106,s106,Very dark and stylish and clearly they were aiming for something of a cross between a club feel date night and just a nice evening out that you would like to bring someone special.,0,environment
+107,s107,Very very friendly and they made an effort with us.,0,service
+108,s108,This mall actually feels like one in Las Vegas.,0,environment
+109,s109,Horrible service attitude.,0,service
+110,s110,The server was cold and seemingly uninterested in making our experience pleasant,0,service
