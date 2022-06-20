@@ -30,7 +30,7 @@ def check_matching(sent, working_list, explain=False):
         for id, start, end in matches:
             if(str(doc[start:end]).strip() !=""):
                 if(explain):
-                    return (True, str(doc[start:end]).strip())
+                    return (True, [str(doc[start:end]).strip(), start, end])
                 return True
     if(explain):
         return (False, "")
@@ -107,12 +107,48 @@ def feature_selector(df):
     return patterns_selected
 
 
+def feature_selector_2(df, k):
+    patterns = []
+    inputs = df.iloc[:,3:].values
+    outs = df["labels"].values
+
+    for i in range(k):
+
+        inputs = df.iloc[:,3:].values
+        
+
+        selector = SelectKBest(f_classif, k=1)
+        X_new = selector.fit_transform(inputs, outs)
+        cols = selector.get_support(indices=True)
+        selected_patterns = np.take(df.columns.values,[x+3 for x in cols] )
+        #get rid of all features correlated 
+        corr = df.corr()
+        corr.head()
+        
+        to_drop = [c for c in corr.columns if corr[selected_patterns[0]][c] >= 0.5] #0.8 chosen at random
+        # print(df.shape[1])
+
+        df = df.drop(to_drop, axis=1)
+        print(f'picked {selected_patterns[0]}')
+        
+        # print(df.shape[1])
+
+        
+        patterns.append(selected_patterns[0])
+        if(df.shape[1]<=4):
+            break
+    return patterns
+
 def train_linear_mode(df, price):
     
     outs = df["labels"].values
     
 
-    cols = feature_selector(df)
+    # cols = feature_selector(df)
+
+    cols = feature_selector_2(df, 10)
+
+    print(f'columns are {cols}')
    
 
 
