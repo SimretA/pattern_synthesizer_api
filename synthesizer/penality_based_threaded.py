@@ -20,7 +20,8 @@ class Synthesizer:
         self.get_search_space(literal_threshold)
         self.candidate = []
         self.patterns_set = {}
-    
+        self.search_track = set()
+        
     def read_examples(self, file):
         examples =[]
         if(file == None):
@@ -75,7 +76,7 @@ class Synthesizer:
     
     
     def search(self, pat,  previous_positive_matched=0, previous_negative_matched=0, depth=0, make_or=False, search_space=None):
-        
+        self.search_track.add(pat)
         if(depth>10):
             print("***ERROR MAX DEPTH REACHED")
             print(f'Pattern: {pat}')
@@ -88,6 +89,8 @@ class Synthesizer:
 
             if(make_or):
                 if(p.type_==WILD):
+                    continue
+                if pat.rstrip(pat.rsplit('+',1)[-1])+p.value_1+"|"+pat.rsplit('+',1)[-1] in self.search_track:
                     continue
                 working_pattern = f"{pat}|{p.value_1}"
                 print("Expanding pattern with or -------- ",working_pattern)
