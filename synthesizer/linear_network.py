@@ -45,10 +45,8 @@ def check_soft_matching(price, working_list, explain=False, threshold=0.4):
         print(lemmas)
         for lemma in lemmas:
             similar_words[lemma] = [k for k,v in similar_words[lemma].items()]
-        print(similar_words)
         for index, patterns in enumerate(working_list):
             for pattern in patterns:
-                print(pattern)
                 for pat in pattern:
                     if 'LEMMA' in pat and 'IN' in pat['LEMMA'] and pat['OP'] == '+':
                         if len(pat['LEMMA']['IN']) <= 1 and pat['LEMMA']['IN'][0] in similar_words:
