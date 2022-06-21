@@ -11,20 +11,101 @@ from sklearn.metrics import precision_recall_fscore_support
 
 import spacy
 from spacy.matcher import Matcher
+
+import gensim
+import gensim.downloader
+
+pretrained_vectors = gensim.downloader.load('word2vec-google-news-300')
 nlp = spacy.load("en_core_web_sm")
 
 from synthesizer.helpers import expand_working_list
 
 
-
+import pickle
 import random
 
+def check_soft_matching(price, working_list, explain=False, threshold=0.4):
+    lemmas = []
+    print(working_list)
+    for index, distinct_pattern in enumerate(working_list):
+        for pattern in distinct_pattern:
+            for pat in pattern:
+                if 'LEMMA' in pat and 'IN' in pat['LEMMA'] and pat['OP'] == '+':
+                    lemmas += pat['LEMMA']['IN']
+    lemmas = list(set(lemmas))
+    similar_words = dict()
+    if len(lemmas) > 0:
+        print(lemmas)
+        similar_words = find_similar_words(lemmas, price["example"].values, threshold)
+    print(similar_words)
+
+    if len(lemmas) > 0:
+        # print('start find' + str(len(positive_examples)))
+        # print(similar_words)
+        print(lemmas)
+        for lemma in lemmas:
+            similar_words[lemma] = [k for k,v in similar_words[lemma].items()]
+        print(similar_words)
+        for index, patterns in enumerate(working_list):
+            for pattern in patterns:
+                print(pattern)
+                for pat in pattern:
+                    if 'LEMMA' in pat and 'IN' in pat['LEMMA'] and pat['OP'] == '+':
+                        if len(pat['LEMMA']['IN']) <= 1 and pat['LEMMA']['IN'][0] in similar_words:
+                            pat['LEMMA']['IN'] += similar_words[pat['LEMMA']['IN'][0]]
+    
+    # doc = nlp(sent)
+    # matches = matcher(doc)
+    # if(matches is not None and len(matches)>0):
+    #     for id, start, end in matches:
+    #         if(str(doc[start:end]).strip() !=""):
+    #             if(explain):
+    #                 return (True, str(doc[start:end]).strip())
+    #             return True
+    # if(explain):
+    #     return (False, "")
+    # return False
+
+def find_similar_words(lemmas, examples, threshold, topk_on=False, topk=1):
+    try:
+        with open('cache/similar_words_examplenum_{}_threshold_{}_topkon_{}_topk_{}.pkl'.format(len(examples),threshold,topk_on,topk), 'rb') as f:
+            similar_words = pickle.load(f)
+    except FileNotFoundError:
+        similar_words = dict()
+    alreadyIn = set()
+    for lemma in lemmas:
+        if lemma in similar_words:
+            alreadyIn.add(lemma)
+            continue
+        similar_words[lemma] = dict()
+    if len(alreadyIn) == len(lemmas):
+        return similar_words
+    for lemma in lemmas:
+        if lemma in alreadyIn: continue
+        for _i, ex in enumerate(examples):
+            doc = nlp(str(ex))
+            for token in doc:
+                #get similarity
+                if not str(token) in similar_words[lemma] and not str(token.lemma_) in lemmas and not token.is_stop and not token.is_punct and len(token.text.strip(" "))>1:
+                    # similar_words[lemma][token.lemma_] = token.similarity(nlp(lemma))
+                    if token.lemma_() in pretrained_vectors and lemma in pretrained_vectors:
+                        similar_words[lemma][token.lemma_] = pretrained_vectors.similarity(token.lemma_,lemma)
+    for lemma in lemmas:
+        if lemma in alreadyIn: continue
+        if not topk_on:
+            similar_words[lemma] = {k:v for k,v in similar_words[lemma].items() if v>threshold}
+        else:
+            similar_words[lemma] = {k:v for k,v in sorted(similar_words[lemma].items(), key=lambda item: item[1], reverse=True)[:topk]}
+            similar_words[lemma] = similar_words[lemma]
+    with open('cache/similar_words_examplenum_{}_threshold_{}_topkon_{}_topk_{}.pkl'.format(len(examples),threshold,topk_on,topk), 'wb') as f:
+        pickle.dump(similar_words,f)
+    return similar_words
 
 def check_matching(sent, working_list, explain=False):
     matcher = Matcher(nlp.vocab)
     for index, patterns in enumerate(working_list):
         matcher.add(f"rule{index}", [patterns])
-    doc = nlp(sent)
+    doc = nlp(str(sent))
     matches = matcher(doc)
     if(matches is not None and len(matches)>0):
         for id, start, end in matches:
@@ -192,6 +273,11 @@ def train_linear_mode(df, price):
     matched_parts = {}
     for pattern in selected_patterns:
         selected_working_list.append(expand_working_list(pattern))
+
+    #soft match on
+    check_soft_matching(price, selected_working_list, explain=True)
+    
+    for pattern in selected_patterns:
         matched_parts[pattern] = {}
 
     running_result = []
@@ -205,6 +291,8 @@ def train_linear_mode(df, price):
             matched_parts[selected_patterns[i]][id] = it_matched[1] #.append({int(id): it_matched[1]})
 
         running_result.append(temp)
+
+    print("modified working_list: {}".format(selected_working_list))
 
     entire_dataset_ins = torch.Tensor(running_result)
 
