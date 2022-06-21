@@ -6,6 +6,7 @@ import pandas as pd
 import json
 import spacy
 import random
+import time
 
 nlp = spacy.load("en_core_web_sm")
         
@@ -148,10 +149,10 @@ class APIHelper:
 
         #Check if data is in the chache    
         cached = self.ran_cache()
-        if(type(cached) != type(None)):
+        if(type(cached) != type(None) and False): #for test
             df = cached
         else:
-            self.synthh = Synthesizer(positive_examples = list(self.positive_examples_collector.values()), negative_examples = list(self.negative_examples_collector.values()))
+            self.synthh = Synthesizer(positive_examples = list(self.positive_examples_collector.values()), negative_examples = list(self.negative_examples_collector.values()), price=self.data)
             
             self.synthh.find_patters()
             df = self.save_cache(self.synthh.patterns_set)
@@ -194,6 +195,8 @@ class APIHelper:
         return collector
 
     def run_test(self, iteration, no_annotation):
+        start_time = time.time()
+        
         self.clear_label()
         pos_count = 0
         neg_count = 0
@@ -263,7 +266,7 @@ class APIHelper:
         
         with open('results/test_results.json', 'w') as f:
             json.dump(collector, f)
-
+        print('---------- {:.1f} minutes ----------'.format((time.time() - start_time) / 60))
 
         return collector
 
