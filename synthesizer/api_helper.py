@@ -48,6 +48,10 @@ class APIHelper:
         return list(self.themes.keys())
 
 
+    def label_by_phrase(self, phrase, label):
+        print("labeling ", phrase, label)
+        return {"status":200, "message":"ok", "id":id, "label":label}
+
     def labeler(self, id, label):
         #check if label already exisits in the oposite collector and remove if it does
         exists = id in self.labels

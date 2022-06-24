@@ -146,7 +146,7 @@ def train_linear_mode(df, price):
 
     # cols = feature_selector(df)
 
-    cols = feature_selector_2(df, 10)
+    cols = feature_selector_2(df, 5)
 
     print(f'columns are {cols}')
    
@@ -171,7 +171,7 @@ def train_linear_mode(df, price):
     losses = []
     net.train()
     print("training ...")
-    for e in range(100):
+    for e in range(50):
         optimizer.zero_grad()
         o =  sigmoid.forward(net.forward(ins.float()))
             

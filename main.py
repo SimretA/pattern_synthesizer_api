@@ -1,8 +1,12 @@
+from unittest import result
 from fastapi import FastAPI
 from synthesizer.api_helper import *
 from synthesizer_v2.api_helper import *
 from synthesizer.penality_based_threaded import Synthesizer 
 from fastapi.middleware.cors import CORSMiddleware
+from concurrent.futures import ProcessPoolExecutor
+import asyncio
+
 
 import pandas as pd
 
@@ -13,6 +17,9 @@ import numpy as np
 random.seed(42)
 np.random.seed(42)
 torch.manual_seed(42)
+
+executor = ProcessPoolExecutor()
+loop = asyncio.get_event_loop()
 
 
 app = FastAPI()
@@ -50,7 +57,7 @@ async def clear_labeling():
     return api_helper2.clear_label()
 
 @app.get("/v2/combinedpatterns")
-async def cpmbinedpatterns():
+async def combinedpatterns():
     return api_helper2.resyntesize()
 
 @app.get("/v2/patterns")
@@ -84,20 +91,31 @@ async def get_labeled_examples():
 
 @app.post("/label/{id}/{label}")
 async def label_example(id:str, label: int):
+    future1 = loop.run_in_executor(None, api_helper.labeler, id, label)
+    res = await future1
+    # results = await api_helper.labeler(id, label)
+    return res
+
+@app.post("/label/{id}/{label}")
+async def label_by_phrase(phrase:str, label: int):
     # print("got it")
-    return api_helper.labeler(id, label)
+
+    results = await api_helper.label_by_phrase(phrase, label)
+    return results
 
 @app.post("/clear")
 async def clear_labeling():
     return api_helper.clear_label()
 
 @app.get("/combinedpatterns")
-async def cpmbinedpatterns():
-    return api_helper.resyntesize()
+async def combinedpatterns():
+    results = await loop.run_in_executor(None, api_helper.resyntesize)
+    return results
 
 @app.get("/patterns")
 async def patterns():
-    return api_helper.all_patterns()
+    results = await loop.run_in_executor(None, api_helper.all_patterns)
+    return results
 
 @app.get("/testing_cache")
 async def testing_patterns():
