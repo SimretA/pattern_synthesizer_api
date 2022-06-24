@@ -7,6 +7,7 @@ from sklearn.feature_selection import chi2
 from sklearn.feature_selection import f_classif
 
 from sklearn.metrics import precision_recall_fscore_support
+from functools import reduce
 
 
 import spacy
@@ -19,18 +20,30 @@ from synthesizer.helpers import expand_working_list
 
 import random
 
+def get_spanning(matches, sent):
+    ranges = [(x[1],x[2]) for x in matches]
+    reducer = (lambda acc, el: acc[:-1:] + [(min(*acc[-1], *el), max(*acc[-1], *el))]
+    if acc[-1][1] > el[0] else acc + [el] )
+    spanning = reduce(reducer, ranges[1::], [ranges[0]])
+    
+    result_matches = []
+    for i, j in spanning:
+        result_matches.append([sent.split(" ")[i:j], i, j])
+    return result_matches
+
 
 def check_matching(sent, working_list, explain=False):
     matcher = Matcher(nlp.vocab)
     for index, patterns in enumerate(working_list):
         matcher.add(f"rule{index}", [patterns])
     doc = nlp(sent)
+    
     matches = matcher(doc)
     if(matches is not None and len(matches)>0):
+        if(explain):
+            return(True, get_spanning(matches, sent) )
         for id, start, end in matches:
             if(str(doc[start:end]).strip() !=""):
-                if(explain):
-                    return (True, [str(doc[start:end]).strip(), start, end])
                 return True
     if(explain):
         return (False, "")

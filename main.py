@@ -96,11 +96,11 @@ async def label_example(id:str, label: int):
     # results = await api_helper.labeler(id, label)
     return res
 
-@app.post("/label/{id}/{label}")
+@app.post("/phrase/{phrase}/{label}")
 async def label_by_phrase(phrase:str, label: int):
     # print("got it")
 
-    results = await api_helper.label_by_phrase(phrase, label)
+    results = await loop.run_in_executor(None, api_helper.label_by_phrase, phrase, label)
     return results
 
 @app.post("/clear")
