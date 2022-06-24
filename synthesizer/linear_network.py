@@ -86,7 +86,7 @@ def find_similar_words(lemmas, examples, threshold, topk_on=False, topk=1):
                 #get similarity
                 if not str(token) in similar_words[lemma] and not str(token.lemma_) in lemmas and not token.is_stop and not token.is_punct and len(token.text.strip(" "))>1:
                     # similar_words[lemma][token.lemma_] = token.similarity(nlp(lemma))
-                    if token.lemma_() in pretrained_vectors and lemma in pretrained_vectors:
+                    if token.lemma_ in pretrained_vectors and lemma in pretrained_vectors:
                         similar_words[lemma][token.lemma_] = pretrained_vectors.similarity(token.lemma_,lemma)
     for lemma in lemmas:
         if lemma in alreadyIn: continue
