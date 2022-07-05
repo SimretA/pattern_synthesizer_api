@@ -1,0 +1,301 @@
+,id,example,positive,label
+0,ss0,Had a really awkward time ordering a beer because nothing on the menu was stocked . ,0,other
+1,ss1,I really enjoyed ( non - sarcastically ) having an overpriced drink here because it reminded me of New York . ,1,price
+2,ss2,"We got here just before the peak lunch crowd on a Saturday morning , and still had to wait 30 minutes , which gave us enough time to find parking down the street . ",0,other
+3,ss3,Hence the food is way too pricey for what 's offered ,1,price
+4,ss4,I can not believe someone was not satisfied with the quality of the chicken at this location ! ,0,products
+5,ss5,I love their location in LA and was hoping to get the great service I usually get when I shop over there . ,0,service
+6,ss6,"Delicious food , friendly people , quick . ",0,service
+7,ss7,Horrible service attitude . ,0,service
+8,ss8,Great service at lunch . ,0,service
+9,ss9,"Environment is very open , clean and comfortable . ",0,environment
+10,ss10,Our server actually seemed annoyed that he had to talk with us ... Just another table and more faces ... More orders ... Move it along . ,0,service
+11,ss11,She even stayed with me after closing to make sure I got everything I needed ,0,service
+12,ss12,WAY OVER PRICED ! $ 39 for the dish pictured . ,1,price
+13,ss13,"The decor looks a little old fashioned , but that actually adds to the feel and I like it . ",0,environment
+14,ss14,"They do not accept reservations , but it is worth the wait . ",0,service
+15,ss15,The product itself is a repellent combination of over intense flavours ,0,products
+16,ss16,"For how much it cost , it could have been better . ",1,price
+17,ss17,Parking can be a issue and they no longer have the dog pen . ,0,environment
+18,ss18,"All you can say is yuuummmmmmmmyy , the line was n't bad given we were there around 3 pm ",0,service
+19,ss19,The shoe was on special price so we got a good deal and bought the shoe as well ! ,1,price
+20,ss20,Service is n't great either . ,0,service
+21,ss21,This mall actually feels like one in Las Vegas . ,0,environment
+22,ss22,"I love that for things you order regularly you can establish a standing order and get a 5 % discount ( milk , eggs , etc . ) . ",1,price
+23,ss23,The servers were a bit confused ,0,service
+24,ss24,It was a little last minute and they were extremely accommodating . ,0,service
+25,ss25,Super quick food lines and attentive employees . ,0,service
+26,ss26,"This place is a treasure , and the atmosphere is amazing as well . ",0,environment
+27,ss27,"For the price I paid , I get more with a vist to another fast food competitor . ",1,price
+28,ss28,Everything fresh and all full of flavor . ,0,products
+29,ss29,The food quality is average and their service is slower than slow ,0,service
+30,ss30,For under $ 7 you get a custom made sub sandwich . ,1,price
+31,ss31,It was definitely not worth the money ,1,price
+32,ss32,Very dark and stylish and clearly they were aiming for something of a cross between a club feel date night and just a nice evening out that you would like to bring someone special . ,0,environment
+33,ss33,The only problem we really had was the ladies at the front office were sorta rude and looked annoyed at us . ,0,service
+34,ss34,some of the items they sale here are a bit over priced but if you do n't mind paying a bit extra this is the place to go . ,1,price
+35,ss35,slow but courteous . ,0,service
+36,ss36,"The ambience , service , and food was pretty cool here . ",0,environment
+37,ss37,"Unbelievable , it was me & my mother so it was a total of 100 $ i could have gone to red lobster and ate better quality of food . ",1,price
+38,ss38,The meal was delicious   and reasonably priced . ,1,price
+39,ss39,The guy told me if I buy a $ 5 sub then I get less vegetables than an $ 8 sub . ,1,price
+40,ss40,They are open Friday - Sunday . ,0,service
+41,ss41,"The only negatives are that the inside is really small , so seating is incredibly cramped and could not accommodate groups ",0,environment
+42,ss42,And it 's terribly over priced for the quality . ,1,price
+43,ss43,The dipping ramen was slightly too salty . ,0,products
+44,ss44,"Well , massively disappointed with this place . Fries were cold , I mean 5 HOUR cold ! ! The burger ? Smashed together like they were trying to save space in bvb yge bag . ",0,products
+45,ss45,50 $ for buffet and mind you i only ate crab legs ,1,price
+46,ss46,Too many other places to shop with better prices . ,1,price
+47,ss47,I bought a Living Social deal $ 30 for $ 60 awhile back . ,1,price
+48,ss48,I sat outdoors and enjoyed the nice string lighting and music that was playing ,0,environment
+49,ss49,They have some great offers going on now with even 70 % off on some items . ,1,price
+50,ss50,Jimmy really cares about his customers and his craft . ,0,service
+51,ss51,"My other dining companions seemed pleased with their food ( one ordered a veal marsala that I did not try and the other - my favorite - ordered off the menu , actually , a request they were kind enough to accommodate - it was gnocchi caprese with pesto sauce instead of tomato sauce , and it was gooeyyummydelicious ) ! ",0,service
+52,ss52,"The food is awesome , fresh , delicious and the best part is , it 's still healthy . ",0,products
+53,ss53,It took the one and only waitress at least 1 hour to serve our food . ,0,service
+54,ss54,the interior is clean and has an almost perfect health rating ,0,environment
+55,ss55,A little expensive but I 'll definitely be back time and time again ,1,price
+56,ss56,And they let me apply the discount to both of our tickets . ,1,price
+57,ss57,"The food was delicious , and the cake was to die for . ",0,products
+58,ss58,"Great chicken , but go during a weekday lunch time to avoid the crowds ",0,products
+59,ss59,No appointment on a Saturday afternoon and they managed to get me in and out in an hour . ,0,service
+60,ss60,The seafood was not fresh . ,0,products
+61,ss61,The food is pretty good ,0,environment
+62,ss62,I did end up finding the perfect doll . ,0,products
+63,ss63,Overpriced wanna be burger and brew place . ,1,price
+64,ss64,The staff is always friendly and they make you feel comfortable even when you 're getting uncomfortable work done . ,0,service
+65,ss65,Everything we tried so far was delicious ! ,0,products
+66,ss66,Their service is typically slow and unfriendly ,0,service
+67,ss67,Environment was lively and diverse . ,0,environment
+68,ss68,Not worth the 40.00 for a basic cut . ,1,price
+69,ss69,"I am not from the area , and parking is tough ",0,environment
+70,ss70,The portion sizes here are gigantic .... we ordered based on our hunger level and should have ordered one plate to share . ,0,products
+71,ss71,Unfortunately several times its been undercooked where literally another 90sec would ' ve made it awesome ,0,products
+72,ss72,They need to chill on their prices . ,1,price
+73,ss73,Customer service told me nothing was rescheduled ,0,service
+74,ss74,First time here and this is a welcome addition to this part of town . ,0,other
+75,ss75,Our host Reinhold is so nice and gracious . ,0,service
+76,ss76,"The manager and staff were friendly , which is always a nice bonus . ",0,service
+77,ss77,Prices are not bad and they have a good amount of seats ( and take reservations ) . ,1,price
+78,ss78,I felt like I was at a fine dining establishment . ,0,service
+79,ss79,Very reasonably priced and came right on budget . ,1,price
+80,ss80,"The food is quite tasty , but the operation around is , let 's say "" challenged "" . ",0,service
+81,ss81,She then decided that the only thing to do was be rude to me . ,0,service
+82,ss82,$ 45 for three of us with large appetites . ,1,price
+83,ss83,"Do not eat here , it is unsanitary . ",0,environment
+84,ss84,It 's such a modern restaurant but their dishes are authentic and super delicious ,0,products
+85,ss85,ALL of the Mexican food was HALF PRICE . ,1,price
+86,ss86,Always a good time ! The food was on point as always .. They can cook a Steak like no other ! Sometimes better than the keg . ,0,products
+87,ss87,I ' ve been using this Discount Tire location for many years and for my last 3 vehicles . ,1,price
+88,ss88,"However , once our dinner came I thought the food was average at best . ",0,products
+89,ss89,"There 's nothing striking about the environment or decor here , but do not leave without trying the dried , sautéed green beans ",0,environment
+90,ss90,"The staff is very kind and knowledgeable , and they remember my pup 's name when I bring him in . ",0,service
+91,ss91,"I was looking for golf shoes , and found some that felt good and fit well but had no price . ",1,price
+92,ss92,The staff and service was really good . I highly recommend this place . ,0,service
+93,ss93,"Also , the smell of the restaurant was very bothersome . ",0,environment
+94,ss94,Staff is nice and would help to fulfill your requests . ,0,service
+95,ss95,"The restaurant is inside an old style passenger train , which gives it more character . ",0,environment
+96,ss96,I went by around 1:30p on a Friday and there were still plenty of tables available even though they were busy and had nice outdoor seating as well . ,0,environment
+97,ss97,"When we were about to pay , the server handed us a bill and I reminded her that we were using the 1/2 off Scoutmob deal , so she took the bill back and came back with another that was pretty much the same except $ 8 difference ... REALLY ? ! ? ",1,price
+98,ss98,The server ( Scottie ) I think was trying to hard to be funny and came across as rude and careless in my opinion . ,0,service
+99,ss99,This is the best sushi in town ,0,products
+100,ss100,Friendly staff . ,0,service
+101,ss101,The waiting staff were very nice . ,0,service
+102,ss102,All the instructors are friendly and helpful . ,0,service
+103,ss103,Some of the items they sale here are a bit over priced ,1,price
+104,ss104,Me : Then why did you tell me they were on discount ? ,1,price
+105,ss105,Our waitress and the Manager are what make good establishments exceptional . ,0,service
+106,ss106,Perfect little spot with healthy options and everything was so delicious . ,0,environment
+107,ss107,Only downside : three entrees served simultaneously but fourth ( beet/ goat cheese ravioli ) was 2 - 3 minutes later which allowed my accompaniments ( delicious creamy polenta ) to cool off to much . ,0,service
+108,ss108,We arrived at 6 pm and the employees told us the order was n't ready . ,0,service
+109,ss109,I tried to contact them through the app and website and still have n't heard back . ,0,service
+110,ss110,The wait staff is attentive and knowledge ,0,service
+111,ss111,The girl at check in that took my info just started typing away and did not explain anything to me . ,0,service
+112,ss112,"Friendly w / great customer service , reasonable prices , and a chill atmosphere ",0,service
+113,ss113,The service is excellent and the family feel of this place is so great . ,0,service
+114,ss114,Prices were reasonable and mission accomplished ! ,1,price
+115,ss115,They should be shut down for terrible service . ,0,service
+116,ss116,The main squeeze was definitely the value and quality of our meal . ,0,products
+117,ss117,"For the amenities and $ paid , it 's small . ",1,price
+118,ss118,"He ordered the tires , gave me a great price and it was done that same day . ",1,price
+119,ss119,The ladies that work here are all so friendly ! ,0,service
+120,ss120,Lots of free parking in the rear of the restaurant . ,0,environment
+121,ss121,The BBQ is wonderful and they have maybe the best collard greens I have had in the US . ,0,products
+122,ss122,It was clear that she was more concerned with being right than being helpful . ,0,service
+123,ss123,"This camp has a loving , nurturing atmosphere that allows kids of all backgrounds and levels of arts experience to excel . ",0,environment
+124,ss124,Employees have horrible attitudes ! ,0,service
+125,ss125,the Pork Belly rice is also really good ,0,products
+126,ss126,My only issue was the cleanliness of the restaurant . ,0,environment
+127,ss127,"they are kind , polite , and take the time to explain everything ",0,service
+128,ss128,but they are more expensive than what I ' ve paid in the past and what another shop charges ,1,price
+129,ss129,"Rodney and his crew gave us a great price and did the work so quick , literally , it was done before we knew it ",0,service
+130,ss130,"I assumed because they are located next to Intel ,   they figured they could charge a ridiculous price for a style . ",1,price
+131,ss131,"For the money we paid ( over 80 $ for 1 appetizer , 2 dinners , 2 drinks ) we could not eat much ",1,price
+132,ss132,This is the worst place for a hairstyle . ,0,service
+133,ss133,Attentive and friendly service . ,0,service
+134,ss134,Give me a good waiter and decent food and it 's hard to not impress . ,0,service
+135,ss135,Poor quality sirloin covered in a thick brown sauce . ,0,products
+136,ss136,Only complaint is they 're expensive ( $ 6.25 for 8) and the sizing is not consistent . ,1,price
+137,ss137,"Gorgeous , gorgeous , gorgeous interior design , with small outdoor area . ",0,environment
+138,ss138,This particular location has a good check in deal . ,1,price
+139,ss139,Pepe is usually there also greeting his customers with a smile and making sure everyone is taken care of . ,0,other
+140,ss140,"needless to say whomever told me this , is a genius . ",0,none
+141,ss141,"Even though the stuff is probably overpriced , you ca n't help but just want to buy up the whole store and bring it home with you . ",1,price
+142,ss142,Reception hung up on me multiple times and would not listen . ,0,service
+143,ss143,My phone screen was replaced in 30 minutes and looks great . ,0,service
+144,ss144,"Always helpful , always wonderful , always available . ",0,service
+145,ss145,My manicure was sloppy and uneven . ,0,products
+146,ss146,all the staff there is amazing . ,0,service
+147,ss147,Pricing reflects the demand -- it 's not CHEAP indian food ( Though not very expensive either ) . ,1,price
+148,ss148,the waiter was friendly and helpful ,0,service
+149,ss149,The store was clean and well organized ,0,environment
+150,ss150,"Booking was easy , the staff was friendly , and they communicated very well . ",0,service
+151,ss151,I purchased a Gibeon Meteorite and black zirconium wedding band from Rings Unique for approximately $ 1200 . ,1,price
+152,ss152,"The food was n't half bad either , but I had the bar food staples . ",0,products
+153,ss153,Rate increases totaling 36 % over 3 months resulted in my canceling my account here . ,1,price
+154,ss154,She also refused to provide the name of her boss in order for me to complain about the experience . ,0,service
+155,ss155,Paid over $ 80 for a king crab leg with an upgraded side and two beers . ,1,price
+156,ss156,"Dear Hyatt Place , if you are going to charge $ 75 for a pet fee , then tell me that my pet is n't allowed through the front door and lobby ",1,price
+157,ss157,Prices here are very reasonable ! ,1,price
+158,ss158,Slowest coffee shop I ' ve been to in boston . Took 15 minutes for me to get a breakfast sandwich . ,0,service
+159,ss159,I like their outdoor seating in the front with sun . ,0,environment
+160,ss160,There is usually no wait for lunch but it can take really long to get a table at night ( they don´t take reservations ) . ,0,service
+161,ss161,The owners are the nicest people and the service is excellent . ,0,service
+162,ss162,They were clearly not equipped for a group our size ,0,environment
+163,ss163,Only issue I have with this place is that they ' ve raised their prices twice in the last year and now it 's $ 2.10 for almost every plate which I think is very high for what you get ,1,price
+164,ss164,"Prices vary so you have to shop around , but every once in a while you can find a really awesome deal . ",1,price
+165,ss165,They have coupons discount for first second and third time customers through their website ,1,price
+166,ss166,"My parents told me a horror story about their friends ' wedding photographer , who insisted on always getting the shot he wanted . ",0,service
+167,ss167,This place is only worth your time if you are looking for discount designer jeans ,1,price
+168,ss168,The waiter was also really nice and the atmosphere is beautiful . ,0,service
+169,ss169,Jamaal is a great instructor and provides personalised and hands - on corrections to ensure you get the best workout . ,0,service
+170,ss170,The server was cold and seemingly uninterested in making our experience pleasant ,0,service
+171,ss171,Extremely quick response to an appointment request and was able to groom our dog the very next day . ,0,service
+172,ss172,The decor was cute and the service was quick . ,0,service
+173,ss173,"The woman told me that her manager said yes they have the calls recorded , but he will not listen to them , and that she was ' proceeding to cancel this call ' .. ",0,service
+174,ss174,"While he checked on the price ( which seemed to take much more effort than it should have ) , I found the shoes on - line for almost half the price . ",1,price
+175,ss175,"Service exceptional . Continuously filling waters , etc . ",0,service
+176,ss176,You get a much much larger portion for the same price at SFU ( the bowl is over - flowing ) . ,1,price
+177,ss177,I still believe he did n't want to help to sit us together and used poor judgement setting up the tables ,0,service
+178,ss178,"The staff here were very pleasant even through the cancellation process , and seemed to realize that someone 's ending use of a unit did n't have to mean permanent loss of a customer . ",0,service
+179,ss179,He was also slow on refilling our waters throughout the meal . ,0,service
+180,ss180,Adult tickets are $ 13.50 but they have military discount . ,1,price
+181,ss181,disappointed in the fact they do n't tell you the price ,1,price
+182,ss182,"Great customer service , great food that is fresh and cooked to order . ",0,service
+183,ss183,Sushi menu was pretty standard and the flavor was nothing special . ,0,products
+184,ss184,The attention to customers I observed to be very good and free computer use is available in the lobby . ,0,service
+185,ss185,Management is drippy ,0,service
+186,ss186,"The place was beautiful , immaculately clean , comfortable bedding ( lovely sheets ) and breakfast was delicious . ",0,environment
+187,ss187,"We never get utensils , and it takes a great deal of effort to flag anyone down for refills or to order food ",0,service
+188,ss188,"It is a surreal experience and profound in that you live for a few hours as a blind person would , being served by a blind person . ",0,service
+189,ss189,Appointment was quick and the staff was incredibly friendly . ,0,service
+190,ss190,There was a nice beer and cocktail list to choose from as well . ,0,products
+191,ss191,Today we waited over ten minutes behind one car in the drive thru for their single order ,0,service
+192,ss192,"Everyone is kind and professional , with no pretense . ",0,service
+193,ss193,The flavors were n't the best and the froyo itself was watery . ,0,products
+194,ss194,"They do n't fill up your ice cream because they say they leave room so you can take your cap off , what about the big hole in the center of the lid ? ",0,products
+195,ss195,They have an awesome return policy which makes me confident about the stuff I buy there . ,0,service
+196,ss196,The line was still worth the wait ,0,other
+197,ss197,"The rooms are nice , spacious and cozy . The huge 42 inch flat screen TV mounted to the wall made it covienent to watch TV from the cozy sectional or while in bed ",0,environment
+198,ss198,there is no sense of urgency of your time at all ,0,service
+199,ss199,I ordered mango & taro moochi in coconut milk for $ 6 ,1,price
+200,ss200,Nail Time lowered their prices ,1,price
+201,ss201,"Service was awful , bathrooms were filthy and Wellesley 's stupid blue law about requiring every patron to order food while drinking is absurb . ",0,environment
+202,ss202,Fabulous service and awesome food ,0,service
+203,ss203,Very very friendly and they made an effort with us . ,0,service
+204,ss204,The manager that did my nails has the worst personality . ,0,service
+205,ss205,Good food with great variety . ,0,products
+206,ss206,This man is unstable and incompetent as a manager ,0,service
+207,ss207,the lines may be long at times ,0,environment
+208,ss208,Our order was wrong as well as missing items . ,0,other
+209,ss209,The portions are perfectly sized to fill you up without any leftovers . ,0,products
+210,ss210,"Bubble teas are not so good ; they are cheap , so they are probably just right for the price . ",1,price
+211,ss211,Large selection of dishes for under $ 9 and there is tons of food . ,1,price
+212,ss212,Better prices than most places for lobster rolls and seafood platters . ,1,price
+213,ss213,Have n't purchased fresh seafood here before but it 's available if you want it . ,0,products
+214,ss214,Ladies at the counter are super helpful and friendly . ,0,service
+215,ss215,"We really enjoyed the BBQ ribs , brisket , and pulled pork . ",0,products
+216,ss216,The building is pretty shanty like but the food is good . ,0,environment
+217,ss217,The black eyes peas and cornbread are delicious ! ,0,products
+218,ss218,The restaurant was clean . ,0,environment
+219,ss219,Lots of picnic tables outside with lots of bees and flies buzzing around . ,0,environment
+220,ss220,Very covid friendly . ,0,environment
+221,ss221,"It is a little pricy though , I drop about $ 200 per visit . ",1,price
+222,ss222,"Not a cheap date , my pup ",1,price
+223,ss223,there 's construction right in front of the building so parking and getting around are a bit difficult ,0,environment
+224,ss224,"Not always worth the price for me , 4/5 ",1,price
+225,ss225,Over charge and unfriendly when you ask about one thing or another 's price being too excessive or not on par with the local market ,1,price
+226,ss226,Service was thorough and effective . ,0,service
+227,ss227,"Tasty cousine ,   large selection of food ,   you can fine everything what you want ",0,products
+228,ss228,"nice open , clean and crisp atmosphere ",0,environment
+229,ss229,There 's a bundle you can buy for 12 wings and pizza for like 22 dollars ! ,1,price
+230,ss230,They have Jamaican beef patties ,0,products
+231,ss231,First time customers get a 10 % coupon on their website ,1,price
+232,ss232,When I called to ask for a refund they said they were unable to and then tried to charge my card without my permission . ,0,service
+233,ss233,The manager was incredibly rude and childish on the phone . ,0,service
+234,ss234,their local pickup option saves shipping costs ,1,price
+235,ss235,They are very responsive to inquiries online and their turnaround is fast enough that you can often order online and pick up the same day after confirmation ,0,service
+236,ss236,"Also look for their sales , especially the dings & dents - the games are often barely hurt , but can be good discounts on already great prices ",1,price
+237,ss237,Yes ! Sunshine roll and a seaweed salad for ten bucks ,1,price
+238,ss238,"The interior is sparkling clean , the machines are efficient and in good repair , and the area it 's in is aesthetically pleasing as well ",0,environment
+239,ss239,The bench outside is under a couple of trees and is a nice place to sit and people watch as well . ,0,environment
+240,ss240,"The service provider was very polite , professional , and considerate of being clean ( he was courteous enough to remove his shoes before entering my home without me having to ask ) ",0,service
+241,ss241,"Their service price is on the higher - end , but their work is seamless , clean , professional , and complete ",1,price
+242,ss242,I love street food but this is mediocre Street food gone overpriced ! ,1,price
+243,ss243,This is a sit down street food establishment that is priced as high as a upscale restaurant but the deliciousness of the food is not as high as street food . ,1,price
+244,ss244,"We tried the wings , the prawn clay pot and the crepe . ",0,products
+245,ss245,The 45 minutes wait was 45 minutes too long . ,0,service
+246,ss246,The falafel was texture wise really good but the taste factor was not there just like the rest of my food unfortunately . ,0,products
+247,ss247,"Great place , however , lately there have been a ton of flies inside the restaurant ",0,environment
+248,ss248,The only down side is the prices are n't necessarily cheap depending on what your budget is but I believe you get what you pay for here ,1,price
+249,ss249,"I got a margherita panini , which is one of their many veggie options , and my husband had a bison burger . ",0,products
+250,ss250,They were so helpful and attentive . ,0,service
+251,ss251,Even on a Friday they had 2 $ off drafts . ,1,price
+252,ss252,We got The Man size beer which was freakin huge for $ 2.99 ,1,price
+253,ss253,The setting is awesome with a lodgelike setting . ,0,environment
+254,ss254,Lots of outdoor seating as well . ,0,environment
+255,ss255,They should make it easier to make a reservation online ! ,0,service
+256,ss256,All of the therapists there are very friendly and make you feel comfortable and relaxed . ,0,service
+257,ss257,"3 stars because the server , ( waitress ) was indifferent to our needs . ",0,service
+258,ss258,"Steak was dry as a bone , lasagna was cold . ",0,products
+259,ss259,Very pricey for a bad meal ,1,price
+260,ss260,"My boyfriend ordered the tonkotsu ramen - nice after taste , but very salty . ",0,products
+261,ss261,Not a great place to go on a Friday or Saturday night if you want to have conversation because the crowd gets loud . ,0,environment
+262,ss262,No real depth to their selection but the price is right and they will have at least something for everyone ... ,1,price
+263,ss263,"Large selection of your standard beers , liquors and wines ... ",0,products
+264,ss264,$ 30 for a meal I would n't eat if given a second chance for a do over ,1,price
+265,ss265,Very disappointed in the meals and price ,1,price
+266,ss266,"the staff , vanguards of vigilant satisfaction and scholars of fun and entertainment . ",0,service
+267,ss267,"Not only do these wonderful people create food to come back for again and again , but the price is right ! ",1,price
+268,ss268,He cares about his clients and is always available when we need him . ,0,service
+269,ss269,I asked the waitress to explain the wine flight and what wines they were and she did n't know ,0,service
+270,ss270,Service generally was slow and unknowledgeable . ,0,service
+271,ss271,The chicken biscuit with the pepper jam is a must have . ,0,products
+272,ss272,The food came out quickly and was hot and fresh ,0,service
+273,ss273,Wendy I must say was the most professional and courteous food service professional we have had the pleasure of meeting . ,0,service
+274,ss274,I have strict dietary needs and a manager was so helpful at looking up the info for me . ,0,service
+275,ss275,Expensive and really not that great . ,1,price
+276,ss276,"The doctor does not seem to be very knowledgeable , their treatment did not work . ",0,service
+277,ss277,Staff member helped him and gave us other suggestions as well . ,0,service
+278,ss278,waited 13 minutes for someone to pick up the phone and finally gave up ,0,service
+279,ss279,The chairs are super comfortable and the prices are reasonable . ,1,price
+280,ss280,I came on my lunch break and I was impressed with fast friendly service ,0,service
+281,ss281,"Like , say , 2 lobsters for $ 26 cooked all plump and tender and smothered in the most divine garlic , ginger and green onion sauce that will have you licking your fingers , licking your chin and licking your partner 's face because it 's so damn delicious . ",1,price
+282,ss282,"Everything is a little pricey but the ingredients are great quality , so it 's worth it ",1,price
+283,ss283,She makes sure she gets that you are satisfied whilst going above & beyond ! ,0,service
+284,ss284,Both will give you courteous reminder calls about your account ,0,service
+285,ss285,"They always have cheap movies - lots of recent run films , but some older stuff too . ",1,price
+286,ss286,"They offer a variety of leagues and training options with some discounts ( about 10 % ) for UBC students , staff , faculty and UNA residents . ",1,price
+287,ss287,Nicole and Alison at the front were extremely welcoming when I arrived and made me feel very comfortable . ,0,service
+288,ss288,I then had my consultation with Dr. Kruy directly .... and it was FREE ! ,1,price
+289,ss289,Other places I had called wanted close to $ 500 before I even met the Dr ,1,price
+290,ss290,"The staff really was engaging , and helped me , a novice , choose paints , brushes , talked with me about techniques , and told me where to go for more information ",0,service
+291,ss291,"I ca n't give more than 4 stars though , because the prices were just too high for what you get . ",1,price
+292,ss292,"They have a pretty decent selection of macarons as well , not as wide as Le Macaron , but definitely cheaper and just as good . ",0,products
+293,ss293,There was a French lady in that day and she really knew her stuff . She was so friendly and full of smiles . ,0,service
+294,ss294,Prices are high the bud is not the best . ,1,price
+295,ss295,"My only prior complaint was the cramped space , but since the recent expansion , this is no longer an issue . ",0,environment
+296,ss296,I do n't care about paying money for my sushi but this was not worth the price ,1,price
+297,ss297,The waitress we had did n't ask if we would like another drink before brining us our check . ,0,service
+298,ss298,The dudes working were very helpful and nice . ,0,service
+299,ss299,"The rice "" bun "" will definitely fall apart on you . ",0,products

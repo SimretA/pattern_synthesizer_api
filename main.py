@@ -1,3 +1,4 @@
+from unicodedata import name
 from unittest import result
 from fastapi import FastAPI
 from synthesizer.api_helper import *
@@ -81,7 +82,7 @@ async def testing_ordering():
 
 
 
-
+threadpool = {}
 
 ###v1 endpoints
 @app.get("/dataset")
@@ -91,6 +92,9 @@ async def get_labeled_examples():
 
 @app.post("/label/{id}/{label}")
 async def label_example(id:str, label: int):
+    # if asyncio.Task:
+    #     for task in asyncio.all_tasks():
+    #         print("task", task)
     future1 = loop.run_in_executor(None, api_helper.labeler, id, label)
     res = await future1
     # results = await api_helper.labeler(id, label)
@@ -100,7 +104,7 @@ async def label_example(id:str, label: int):
 async def label_by_phrase(phrase:str, label: int):
     # print("got it")
 
-    results = await loop.run_in_executor(None, api_helper.label_by_phrase, phrase, label)
+    results = await loop.run_in_executor(executor, api_helper.label_by_phrase, phrase, label)
     return results
 
 @app.post("/clear")
@@ -109,12 +113,13 @@ async def clear_labeling():
 
 @app.get("/combinedpatterns")
 async def combinedpatterns():
-    results = await loop.run_in_executor(None, api_helper.resyntesize)
+    results = await loop.run_in_executor(executor, api_helper.resyntesize)
+    api_helper.results = results
     return results
 
 @app.get("/patterns")
 async def patterns():
-    results = await loop.run_in_executor(None, api_helper.all_patterns)
+    results = await loop.run_in_executor(executor, api_helper.all_patterns)
     return results
 
 @app.get("/testing_cache")
@@ -125,6 +130,22 @@ async def testing_patterns():
 async def test(iteration:int, annotation: int):
     return api_helper.run_test(iteration, annotation)
 
+@app.get("/themes")
+async def get_themes():
+    return api_helper.get_themes()
+
+@app.get("/selected_theme")
+async def get_selected_theme():
+    return api_helper.get_selected_theme()
+
+@app.post("/set_theme/{theme}")
+async def set_theme(theme:str):
+    return (theme,api_helper.set_theme(theme))
+
+@app.get("/related_examples/{id}")
+async def get_related_examples(id:str):
+    results = await loop.run_in_executor(executor, api_helper.get_related, id)
+    return results
 
 def main():
     synthh = Synthesizer(positive_examples = "examples/price_big", negative_examples = "examples/not_price_big")

@@ -54,7 +54,7 @@ class Synthesizer:
         part_of_speech = [ "PRON","VERB", "PROPN", "NOUN", "ADJ", "ADV", "AUX", "NUM"]
         entities =[ 'DATE', 'EVENT', 'LOC', 'MONEY', 'ORDINAL', 'ORG', 'PERCENT', 'PERSON', 'PRODUCT', 'QUANTITY']
         wild_card = ["*"]
-        literals = self.get_literals_space( literal_threshold)
+        literals = self.get_literals_space( threshold=20)
         
         
             #All POS tags
@@ -77,9 +77,18 @@ class Synthesizer:
     
     def search(self, pat,  previous_positive_matched=0, previous_negative_matched=0, depth=0, make_or=False, search_space=None):
         self.search_track.add(pat)
-        if(depth>10):
+        if(depth>self.max_depth):
             print("***ERROR MAX DEPTH REACHED")
             print(f'Pattern: {pat}')
+
+            recall = previous_positive_matched / len(self.positive_examples)
+            try:
+                precision = previous_positive_matched/(previous_positive_matched+previous_negative_matched)
+            except:
+                print("Error caught - ", pat, previous_negative_matched, previous_positive_matched)
+            fscore = 2*(recall*precision)/(recall+precision)
+
+            self.patterns_set[pat] = [precision, recall, fscore]
             return
         for p in search_space:
             if(depth==0 and p.type_==WILD):
@@ -93,7 +102,7 @@ class Synthesizer:
                 if pat.rstrip(pat.rsplit('+',1)[-1])+p.value_1+"|"+pat.rsplit('+',1)[-1] in self.search_track:
                     continue
                 working_pattern = f"{pat}|{p.value_1}"
-                print("Expanding pattern with or -------- ",working_pattern)
+                # print("Expanding pattern with or -------- ",working_pattern)
             else:
                 if(pat != ""):
                     working_pattern = f"{pat}+{p.value_1}"
@@ -102,7 +111,7 @@ class Synthesizer:
 
             #if wildcard is added no need to check. Just go on in the recurssion
             if(p.type_ == WILD):
-                self.search( working_pattern,  previous_positive_matched=previous_negative_matched, previous_negative_matched=previous_negative_matched, depth=depth+1, search_space=new_search_space)
+                self.search( working_pattern,  previous_positive_matched=previous_positive_matched, previous_negative_matched=previous_negative_matched, depth=depth+1, search_space=new_search_space)
                 continue
 
             
@@ -115,9 +124,11 @@ class Synthesizer:
             # reward = (postive_match_count - previous_positive_matched)/len(positive_examples)
             try:
 
-                reward = postive_match_count/(len(self.positive_examples)-previous_positive_matched)
+                # reward = postive_match_count/(len(self.positive_examples)-previous_positive_matched)
+                reward = (postive_match_count-previous_positive_matched)/postive_match_count
+                # reward = ((postive_match_count-previous_positive_matched)/postive_match_count)*len()
             except:
-                reward = postive_match_count/len(self.positive_examples)
+                reward = 0
             try:
             # penality = (previous_negative_matched - negative_match_count)/len(negative_examples)
                 penality = negative_match_count/len(self.negative_examples)
@@ -134,7 +145,7 @@ class Synthesizer:
                 fscore = 2*(recall*precision)/(recall+precision)
             except:
                 fscore = 0
-            if(reward<0.1 or penality>0.3):
+            if(reward==0 or penality>0.3):
                 #We know that the previous pattern was working because it got this far without being pruned so we add to the list of candidates
                 if(len(pat)>2 and pat[-1]=="*"):
                     # patterns_set.add(pat[:-2])
@@ -148,7 +159,7 @@ class Synthesizer:
 
 
 
-            if(postive_match_count>previous_positive_matched and depth<10):
+            if(postive_match_count>previous_positive_matched and depth<self.max_depth):
                 self.search(working_pattern, previous_positive_matched=postive_match_count, previous_negative_matched=negative_match_count, depth=depth+1, search_space=new_search_space)
                 if(previous_positive_matched==0 and postive_match_count<len(self.positive_examples)):
                     #Search with an or too

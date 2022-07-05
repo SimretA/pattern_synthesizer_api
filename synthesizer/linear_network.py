@@ -49,8 +49,9 @@ def check_matching(sent, working_list, explain=False):
         return (False, "")
     return False
 
-def patterns_against_examples(file_name, patterns, examples, ids, labels):
+def patterns_against_examples(file_name, patterns, examples, ids, labels, priority_phrases):
     results = []
+    
     for pattern in patterns:
         pattern_result = []
         working_list = expand_working_list(pattern)
@@ -59,14 +60,27 @@ def patterns_against_examples(file_name, patterns, examples, ids, labels):
                 pattern_result.append(1)
             else:
                 pattern_result.append(0)
+        
+        for phrase in priority_phrases:
+            print(f'{phrase} with {pattern} => {check_matching(f"{phrase} ", working_list)}')
+            if(check_matching(f'{phrase} ', working_list)):
+                pattern_result.append(1)
+            else:
+                pattern_result.append(0)
+
         results.append(pattern_result)
+        
+        
+
+
+
     res = np.asarray(results).T
     df = pd.DataFrame(res, columns=patterns)
-    df.insert(0,"sentences", examples)
+    df.insert(0,"sentences", examples+priority_phrases)
     print(df.shape)
-    df.insert(0,"labels", labels)
+    df.insert(0,"labels", labels+([0] * len(priority_phrases)))
 
-    df["id"] = ids
+    df["id"] = ids+[f'phrase{i}' for i in range(len(priority_phrases))]
 
     df = df.set_index("id")
     df.to_csv(file_name)
@@ -179,7 +193,7 @@ def train_linear_mode(df, price):
     net = torch.nn.Linear(ins.shape[1],1, bias=False)
     sigmoid = torch.nn.Sigmoid()
 
-    criterion = torch.nn.BCELoss()
+    criterion = torch.nn.MSELoss(size_average=False)
     optimizer = torch.optim.SGD(net.parameters(), lr=0.1)
     losses = []
     net.train()

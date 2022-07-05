@@ -7,6 +7,11 @@ import json
 import spacy
 import random
 
+import asyncio
+
+loop = asyncio.get_event_loop()
+
+
 nlp = spacy.load("en_core_web_sm")
         
 
@@ -15,13 +20,20 @@ class APIHelper:
         self.positive_examples_collector = {}
         self.negative_examples_collector = {}
         self.negative_phrases = []
-        self.theme = "price_service"
+        self.theme = "price_service_300"
+        self.selected_theme = "price"
 
+        # self.theme = "price_service"
         # self.theme = "hate_speech_binary"
 
         self.data = pd.read_csv(f"examples/df/{self.theme}.csv")
+        self.data['positive'] = self.data['label'].apply(lambda x: x==self.selected_theme)
+        self.priority_unmatch = []
+        self.priority_match = []
         self.labels = {}
         self.themes = {}
+
+        self.results = {}
     
     
     def save_cache(self, pattern_set):
@@ -30,7 +42,7 @@ class APIHelper:
         ids = list(self.positive_examples_collector.keys())+list(self.negative_examples_collector.keys())
         labels = [self.labels[x] for x in ids]
 
-        df = patterns_against_examples(file_name=f"cache/{file_name}.csv",patterns=list(pattern_set.keys()), examples=examples, ids=ids, labels=labels)
+        df = patterns_against_examples(file_name=f"cache/{file_name}.csv",patterns=list(pattern_set.keys()), examples=examples, ids=ids, labels=labels, priority_phrases=self.negative_phrases)
         return df
 
     def ran_cache(self):
@@ -43,15 +55,25 @@ class APIHelper:
             return None
     ####### End Points ######
 
-    def add_theme(self, theme):
-        self.themes[theme] = {}
+    def set_theme(self, theme):
+        self.selected_theme = theme
 
-        return list(self.themes.keys())
+        self.data['positive'] = self.data['label'].apply(lambda x: x==self.selected_theme)
+        self.clear_label()
+        
+        return self.get_labeled_dataset()
+
+    def get_themes(self):
+        return list(self.data['label'].unique())
+    
+    def get_selected_theme(self):
+        return self.selected_theme
 
 
     def label_by_phrase(self, phrase, label):
-        self.negative_phrases.append(phrase.strip())
-        print(list(self.negative_examples_collector.values())+self.negative_phrases)
+        self.negative_phrases.append(nlp(phrase.strip()))
+        # self.priority_unmatch.append(phrase)
+        # print(list(self.negative_examples_collector.values())+self.negative_phrases)
         return {"status":200, "message":"ok", "phrase":phrase, "label":label}
 
     def labeler(self, id, label):
@@ -101,6 +123,7 @@ class APIHelper:
         
         self.negative_examples_collector.clear()
         self.positive_examples_collector.clear()
+        self.negative_phrases = []
 
         return {"message":"okay", "status":200}
 
@@ -133,10 +156,14 @@ class APIHelper:
 
         #Check if data is in the chache
         cached = self.ran_cache()
+
+        #For testing 
+        # cached = None
+
         if(type(cached) != type(None)):
             df = cached
         else:
-            self.synthh = Synthesizer(positive_examples = list(self.positive_examples_collector.values()), negative_examples = list(self.negative_examples_collector.values()))
+            self.synthh = Synthesizer(positive_examples = list(self.positive_examples_collector.values()), negative_examples = list(self.negative_examples_collector.values())+self.negative_phrases, max_depth=3)
 
             self.synthh.find_patters()
             
@@ -153,18 +180,69 @@ class APIHelper:
             return {"message":"Nothing labeled yet"}
 
         #Check if data is in the chache    
-        cached = self.ran_cache()
+        cached =  self.ran_cache()
+
+        #For testing 
+        # cached = None
         if(type(cached) != type(None)):
             df = cached
         else:
-            self.synthh = Synthesizer(positive_examples = list(self.positive_examples_collector.values()), negative_examples = list(self.negative_examples_collector.values()))
+            self.synthh = Synthesizer(positive_examples = list(self.positive_examples_collector.values()), negative_examples = list(self.negative_examples_collector.values())+self.negative_phrases)
             
             self.synthh.find_patters()
             df = self.save_cache(self.synthh.patterns_set)
         
 
         res = train_linear_mode(df=df, price=self.data)
+        self.results = res
+        
         return res
+
+    def get_related(self, id):
+
+        print(self.results)
+
+        
+        # explanation = self.results['explanation']
+        # sentence_explanation = []
+
+        
+        # for key,value in explanation.items():
+        #     sentence_explanation.append({key:value[id]})
+
+        score = self.results['scores'][id]
+
+        related = []
+
+        for sentence_id in list(self.data['id'].values):
+            if sentence_id == id:
+                continue
+            if self.results['scores'][sentence_id] == score:
+                related.append(sentence_id)
+        
+        dataset = []
+        
+        for i in related:
+            item = dict()
+            item["id"] = str(i)
+            item["example"] = self.data[self.data["id"] == i]["example"].values[0]
+            item["true_label"] = self.data[self.data["id"] == i]["positive"].values.tolist()[0]
+            item["score"] = None
+            if(str(i) in self.labels):
+                item["user_label"] = self.labels[str(i)]
+            else:
+                item["user_label"] = None
+            # print()
+
+            dataset.append(item)
+
+        # related = [df["id"]==x f]
+
+        
+        print(related)
+
+
+        return dataset
 
     def run_test(self, iteration, no_annotation):
         self.clear_label()
