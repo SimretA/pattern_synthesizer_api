@@ -7,11 +7,17 @@ import json
 import numpy as np
 from sklearn.metrics import precision_recall_fscore_support
 import pickle
-
+import copy
 import gensim
 import gensim.downloader
 
-pretrained_vectors = gensim.downloader.load('word2vec-google-news-300')
+from nltk.corpus import wordnet as wn
+
+from sentence_transformers import SentenceTransformer, util
+model = SentenceTransformer('all-MiniLM-L6-v2')
+
+
+# pretrained_vectors = gensim.downloader.load('glove-wiki-gigaword-300')
 nlp = spacy.load("en_core_web_sm")
 
 def get_patterns(df, labels, chosenpatterns=None):
@@ -144,28 +150,55 @@ def find_similar_words(lemmas, examples, threshold, topk_on=False, topk=1, negat
         return similar_words
     for lemma in lemmas:
         if lemma in alreadyIn: continue
+        lemma_embeddings = model.encode(lemma, convert_to_tensor=True)
         for _i, ex in enumerate(examples):
             doc = nlp(str(ex))
             for token in doc:
                 #get similarity
                 if not str(token) in similar_words[lemma] and not str(token.lemma_) in lemmas and not token.is_stop and not token.is_punct and len(token.text.strip(" "))>1:
+                    similar_words[lemma][token.lemma_] = util.cos_sim(model.encode(token.lemma_, convert_to_tensor=True), lemma_embeddings)[0][0]
+
                     # similar_words[lemma][token.lemma_] = token.similarity(nlp(lemma))
-                    if token.lemma_ in pretrained_vectors and lemma in pretrained_vectors:
-                        similar_words[lemma][token.lemma_] = pretrained_vectors.similarity(token.lemma_,lemma)
+
+                    # if token.lemma_ in pretrained_vectors and lemma in pretrained_vectors:
+                    #     similar_words[lemma][token.lemma_] = pretrained_vectors.similarity(token.lemma_,lemma)
+
+                    # pos = ''
+                    # if token.pos_ == 'NOUN': pos = 'n'
+                    # if token.pos_ == 'VERB': pos = 'v'
+                    # if token.pos_ == 'ADV': pos = 'r'
+                    # if token.pos_ == 'ADJ': pos = 'a'
+                    # synset1 = wn.synsets(lemma, pos)
+                    # synset2 = wn.synsets(token.lemma_, pos)
+                    # if len(synset1) > 0 and len(synset2) > 0:
+                    #     if token.lemma_ in similar_words[lemma] and token.pos_ in similar_words[lemma]:
+                    #         similar_words[lemma][token.lemma_][token.pos_] = max(synset1[0].wup_similarity(synset2[0]),similar_words[lemma][token.lemma_][0])
+                    #     else:
+                    #         similar_words[lemma][token.lemma_] = [synset1[0].wup_similarity(synset2[0]), token.pos_]
+
+                    # if token.lemma_ in similar_words[lemma] and token.pos_ in similar_words[lemma][token.lemma_]:
+                    #     similar_words[lemma][token.lemma_][token.pos_] = 
+
+    # wordnet
+    # for lemma in lemmas:
+    #     if lemma in alreadyIn: continue
+    #     if not topk_on:
+    #         similar_words[lemma] = {k:v for k,v in similar_words[lemma].items() if v[0]>threshold}
+    #     else:
+    #         similar_words[lemma] = {k:v for k,v in sorted(similar_words[lemma].items(), key=lambda item: item[1][0], reverse=True)[:topk]}
+
     for lemma in lemmas:
         if lemma in alreadyIn: continue
         if not topk_on:
             similar_words[lemma] = {k:v for k,v in similar_words[lemma].items() if v>threshold}
         else:
             similar_words[lemma] = {k:v for k,v in sorted(similar_words[lemma].items(), key=lambda item: item[1], reverse=True)[:topk]}
-            similar_words[lemma] = similar_words[lemma]
-    # with open('cache/similar_words_negative_set{}_examplenum_{}_threshold_{}_topkon_{}_topk_{}.pkl'.format(negative_set,len(examples),threshold,topk_on,topk), 'wb') as f:
-    #     pickle.dump(similar_words,f)
+
     with open('cache/similar_words_examplenum_{}_threshold_{}_topkon_{}_topk_{}.pkl'.format(len(examples),threshold,topk_on,topk), 'wb') as f:
         pickle.dump(similar_words,f)
     return similar_words
 
-def soft_match_positives(working_list, positive_examples, negative_set=False, price=None, threshold=0.5, topk_on=False, topk=1):
+def soft_match_positives(working_list, positive_examples, negative_set=False, price=None, threshold=0.6, topk_on=False, topk=1):
     if (positive_examples == None or len(positive_examples) == 0):
         return 0
     match_count = 0
@@ -182,13 +215,35 @@ def soft_match_positives(working_list, positive_examples, negative_set=False, pr
         # print('start find' + str(len(positive_examples)))
         similar_words = find_similar_words(lemmas, price["example"].values, threshold,negative_set=negative_set,topk_on=topk_on,topk=topk)
         # print(similar_words)
+
         for lemma in lemmas:
             similar_words[lemma] = [k for k,v in similar_words[lemma].items()]
+
+        #wordnet   
+        # for lemma in lemmas:
+        #     similar_words[lemma] = [[k,v[1]] for k,v in similar_words[lemma].items()]
+            
         for index, distinct_pattern in enumerate(working_list):
             for pattern in distinct_pattern:
                 if 'LEMMA' in pattern and 'IN' in pattern['LEMMA'] and pattern['OP'] == '+':
                     if len(pattern['LEMMA']['IN']) <= 1 and pattern['LEMMA']['IN'][0] in similar_words:
                         pattern['LEMMA']['IN'] += similar_words[pattern['LEMMA']['IN'][0]]
+                        pattern['POS'] = nlp(pattern['LEMMA']['IN'][0])[0].pos_
+
+        #wordnet
+        # length = len(working_list)
+        # for index, distinct_pattern in enumerate(working_list):
+        #     if index >= length: break
+        #     for index_j, pattern in enumerate(distinct_pattern):
+        #         if 'LEMMA' in pattern and 'IN' in pattern['LEMMA'] and pattern['OP'] == '+':
+        #             if pattern['LEMMA']['IN'][0] in similar_words:
+        #                 for v in similar_words[pattern['LEMMA']['IN'][0]]:
+        #                     temp = copy.deepcopy(working_list[index])
+        #                     temp[index_j]['LEMMA']['IN'] = [v[0]]
+        #                     # temp[index_j]['POS'] = v[1]
+        #                     working_list.append(temp)
+
+        
                 # print(pattern)
     #         matcher.add(f"Posmatch{index}", [distinct_pattern])
         
