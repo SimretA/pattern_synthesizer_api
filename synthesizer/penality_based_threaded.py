@@ -1,15 +1,18 @@
+from symtable import Symbol
 import spacy
+from nltk.corpus import wordnet
 from spacy.matcher import Matcher
 from synthesizer.pattern_types import *
 from synthesizer.helpers import expand_working_list
 from synthesizer.helpers import match_positives
-from synthesizer.helpers import show_patters
 from synthesizer.helpers import soft_match_positives
+from synthesizer.helpers import show_patters
+
 
 nlp = spacy.load("en_core_web_sm")
 
 class Synthesizer:
-    def __init__(self, positive_examples, negative_examples=None, threshold=0.5,literal_threshold=4, max_depth=10) -> None:
+    def __init__(self, positive_examples, negative_examples=None, threshold=0.5,literal_threshold=4, max_depth=10, price=None) -> None:
         self.nlp = spacy.load("en_core_web_sm")
         self.threshold = threshold
         self.patterns_set= dict()
@@ -21,7 +24,8 @@ class Synthesizer:
         self.candidate = []
         self.patterns_set = {}
         self.search_track = set()
-        
+        self.price = price
+    
     def read_examples(self, file):
         examples =[]
         if(file == None):
@@ -35,7 +39,8 @@ class Synthesizer:
         literal_dict = dict()
         words = []
         for ex in self.positive_examples:
-            doc = self.nlp(ex)
+            print(type(ex))
+            doc = self.nlp(str(ex))
             for token in doc:
                 # print(token)
                 if not token.is_stop and not token.is_punct and len(token.text.strip(" "))>1:
@@ -49,6 +54,20 @@ class Synthesizer:
         literal_dict =  {k: v for k, v in sorted(literal_dict.items(), key=lambda item: item[1], reverse=True)}
 
         return list(literal_dict.keys())[:threshold]       #pick the top N most common words
+    
+    def get_synonyms(self, literals, threshold=1):
+        synonyms_ls = []
+        for pattern in literals:
+            pattern = nlp(pattern)
+            synonyms_dict = dict()
+            for ex in self.positive_examples:
+                doc = self.nlp(str(ex))
+                for token in doc:
+                    if not str(token.lemma_) in literals and not str(token.lemma_) in synonyms_ls and not token.is_stop and not token.is_punct and len(token.text.strip(" "))>1:
+                        synonyms_dict[str(token.lemma_)] = token.similarity(pattern)
+            synonyms_dict = {k: v for k, v in sorted(synonyms_dict.items(), key=lambda item: item[1], reverse=True)}
+            synonyms_ls += list(synonyms_dict.keys())[:threshold]
+        return synonyms_ls
 
     def get_search_space(self, literal_threshold=4):
         part_of_speech = [ "PRON","VERB", "PROPN", "NOUN", "ADJ", "ADV", "AUX", "NUM"]
@@ -68,7 +87,28 @@ class Synthesizer:
             #All literal word tags
         for pattern in literals:
             symbol = stru(LITERAL, f"[{pattern}]")
+            print("literal: " + symbol.type_ + symbol.value_1)
             self.search_space.append(symbol)
+            # add synonyms
+            # synonyms = []
+            # for syn in wordnet.synsets(pattern):
+            #     for l in syn.lemmas():
+            #         if l.name() != pattern:
+            #             synonyms.append(l.name())
+            # synonyms = set(synonyms)
+            # print('syn num: ' + str(len(synonyms)))
+            # print(synonyms)
+            # for syn in synonyms:
+            #     symbol = stru(LITERAL, f"[{syn}]")
+            #     self.search_space.append(symbol)
+        
+        # by similarity
+        # synonyms = self.get_synonyms(literals)
+        # for syn in synonyms:
+        #     print("synonyms :" + syn)
+        #     symbol = stru(LITERAL, f"[{syn}]")
+        #     self.search_space.append(symbol)
+
         for pattern in entities:
             symbol = stru(ENTITY, f"${pattern}")
             self.search_space.append(symbol)
@@ -93,24 +133,24 @@ class Synthesizer:
                 if pat.rstrip(pat.rsplit('+',1)[-1])+p.value_1+"|"+pat.rsplit('+',1)[-1] in self.search_track:
                     continue
                 working_pattern = f"{pat}|{p.value_1}"
-                print("Expanding pattern with or -------- ",working_pattern)
+                #print("Expanding pattern with or -------- ",working_pattern)
             else:
                 if(pat != ""):
                     working_pattern = f"{pat}+{p.value_1}"
                 else:
                     working_pattern = f"{p.value_1}"
-
+            
             #if wildcard is added no need to check. Just go on in the recurssion
             if(p.type_ == WILD):
-                self.search( working_pattern,  previous_positive_matched=previous_negative_matched, previous_negative_matched=previous_negative_matched, depth=depth+1, search_space=new_search_space)
+                self.search( working_pattern,  previous_positive_matched=previous_positive_matched, previous_negative_matched=previous_negative_matched, depth=depth+1, search_space=new_search_space)
                 continue
 
             
             working_list = expand_working_list(working_pattern)
             # print(working_list)
-            
+
             #to turn on soft match
-            soft_match_positives(working_list, self.positive_examples, price=self.price)
+            soft_match_positives(working_list, self.positive_examples, price=self.price, threshold=0.5)
             
             postive_match_count = match_positives(working_list, self.positive_examples)
             negative_match_count = match_positives(working_list, self.negative_examples, negative_set=True)
