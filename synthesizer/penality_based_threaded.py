@@ -4,12 +4,12 @@ from synthesizer.pattern_types import *
 from synthesizer.helpers import expand_working_list
 from synthesizer.helpers import match_positives
 from synthesizer.helpers import show_patters
-
+from synthesizer.helpers import soft_match_positives
 
 nlp = spacy.load("en_core_web_sm")
 
 class Synthesizer:
-    def __init__(self, positive_examples, negative_examples=None, threshold=0.5,literal_threshold=4, max_depth=10) -> None:
+    def __init__(self, positive_examples, negative_examples=None, threshold=0.5,literal_threshold=4, max_depth=10, price=None) -> None:
         self.nlp = spacy.load("en_core_web_sm")
         self.threshold = threshold
         self.patterns_set= dict()
@@ -21,6 +21,7 @@ class Synthesizer:
         self.candidate = []
         self.patterns_set = {}
         self.search_track = set()
+        self.price = price
         
     def read_examples(self, file):
         examples =[]
@@ -117,6 +118,10 @@ class Synthesizer:
             
             working_list = expand_working_list(working_pattern)
             # print(working_list)
+
+            #to turn on soft match
+            soft_match_positives(working_list, self.positive_examples, price=self.price,topk_on=True, topk=3)
+
             postive_match_count = match_positives(working_list, self.positive_examples)
             negative_match_count = match_positives(working_list, self.negative_examples, negative_set=True)
 
