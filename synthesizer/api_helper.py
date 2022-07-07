@@ -201,6 +201,7 @@ class APIHelper:
         pos_count = 0
         neg_count = 0
         collector = []
+        newCollector = []
         self.clear_label()
 
         all_ids  = self.data["id"].values.tolist()
@@ -219,6 +220,7 @@ class APIHelper:
                     neg_count+=1
         print(self.labels)
         for x in range(iteration):
+            iteration_start_time = time.time()
             print("Starting Synthesizing")
             results = self.resyntesize()
 
@@ -251,10 +253,51 @@ class APIHelper:
             results["positive_annotated_examples"] = [str(x) for x in self.positive_examples_collector.values()]
 
             results["negative_annotated_examples"] = [str(x) for x in self.negative_examples_collector.values()]
+            
+            newresults = {}
+            newresults["iteration_num"] = x
+            newresults["iteration_time"] = '{:.1f} minutes'.format((time.time() - iteration_start_time) / 60)
 
+            if 'scores' in results:
+                dataset = self.data
+                baseline = pd.read_json("results/baseline_result_15_5.json")
+                resultA = [v > 0.5 for k,v in results['scores'].items()]
+                resultB = [v > 0.5 for k,v in baseline['scores'][x].items()]
+                newresults['baseline_iteration_time'] = baseline["iteration_time"][x]
+                newresults['Fscore_comparison'] = {'This': results['overall_fscore'], 'Baseline': baseline['overall_fscore'][x]}
+                newresults["TP"] = []
+                newresults["FP"] = []
+                newresults["TN"] = []
+                newresults["FN"] = []
+                for j in range(len(resultA)):
+                    if resultA[j] != resultB[j]:
+                        ex = [dataset['example'][j]]
+                        for pat in results['patterns']:
+                            if results['explanation'][pat['pattern']][dataset['id'][j]] != '':
+                                ex.append({pat['pattern']:results['explanation'][pat['pattern']][dataset['id'][j]], "weight":pat['weight']})
+                        # ex_baseline = [dataset['example'][j]]
+                        # for pat in baseline['patterns'][x]:
+                        #     if baseline['explanation'][x][pat['pattern']][dataset['id'][j]] != '':
+                        #         ex_baseline.append({pat['pattern']:baseline['explanation'][x][pat['pattern']][dataset['id'][j]]})
+                        #         print(ex_baseline)
+                        if dataset['positive'][j] == resultA[j]:
+                            if resultA[j] == 1:
+                                newresults["TP"].append({dataset['id'][j]:ex})
+                            else: newresults["TN"].append({dataset['id'][j]:ex})
+                        if dataset['positive'][j] != resultA[j]:
+                            if resultA[j] == 1:
+                                newresults["FP"].append({dataset['id'][j]:ex})
+                            else: newresults["FN"].append({dataset['id'][j]:ex})
+                newresults['TP_num'] = len(newresults['TP'])
+                newresults['FP_num'] = len(newresults['FP'])
+                newresults['TN_num'] = len(newresults['TN'])
+                newresults['FN_num'] = len(newresults['FN'])
+            results = {**results, **newresults}
+            # Overview
+            # results = newresults
 
             collector.append(results)
-
+            newCollector.append(newresults)
 
             for i, lbl in zip(ids, annotation):
                 self.labeler(str(i), int(lbl))
@@ -264,6 +307,10 @@ class APIHelper:
                 elif lbl==0:
                     neg_count+=1
         
+
+        
+
+        collector += newCollector
         with open('results/test_results.json', 'w') as f:
             json.dump(collector, f)
         print('---------- {:.1f} minutes ----------'.format((time.time() - start_time) / 60))
