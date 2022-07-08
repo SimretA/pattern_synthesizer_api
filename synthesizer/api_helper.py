@@ -166,9 +166,10 @@ class APIHelper:
             self.synthh = Synthesizer(positive_examples = list(self.positive_examples_collector.values()), negative_examples = list(self.negative_examples_collector.values())+self.negative_phrases, max_depth=3)
 
             self.synthh.find_patters()
-            
-
-            df = self.save_cache(self.synthh.patterns_set)
+            try:
+                df = self.save_cache(self.synthh.patterns_set)
+            except:
+                return {"message":"Annotate Some More"}
         
         patterns = get_patterns(df, self.labels)
 
@@ -190,7 +191,10 @@ class APIHelper:
             self.synthh = Synthesizer(positive_examples = list(self.positive_examples_collector.values()), negative_examples = list(self.negative_examples_collector.values())+self.negative_phrases)
             
             self.synthh.find_patters()
-            df = self.save_cache(self.synthh.patterns_set)
+            try:
+                df = self.save_cache(self.synthh.patterns_set)
+            except:
+               return {"message":"Annotate Some More"} 
         
 
         res = train_linear_mode(df=df, price=self.data)
@@ -200,7 +204,7 @@ class APIHelper:
 
     def get_related(self, id):
 
-        print(self.results)
+        # print(self.results)
 
         
         # explanation = self.results['explanation']

@@ -1,0 +1,25 @@
+id,labels,sentences,PROPN,PROPN+NOUN,PROPN+*+NOUN,PROPN+*+$ORG,PROPN+$ORG,PROPN|$MONEY,PROPN|$MONEY+NOUN,PROPN|$MONEY+*+NOUN,NUM,NUM+NOUN,NUM+NOUN|ADV,NUM+ADV,NUM+ADV|$MONEY,NUM+*+NOUN,NUM+*+NOUN|ADV,NUM+*+ADV,NUM+*+ADV|$MONEY,NUM+*+$MONEY,NUM+$MONEY,$MONEY,$MONEY+NOUN,$MONEY+NOUN|ADV,$MONEY+ADV,$MONEY+*+NOUN,$MONEY+*+NOUN|ADV,$MONEY+*+ADV,$ORG,$ORG|PROPN,$ORG|PROPN+NOUN,$ORG|PROPN+*+NOUN,$ORG|PROPN|$MONEY,$ORG|PROPN|$MONEY+NOUN,$ORG|PROPN|$MONEY+*+NOUN,$ORG|NUM,$ORG|NUM+NOUN,$ORG|NUM+*+NOUN,$ORG|$MONEY,$ORG|$MONEY+NOUN,$ORG|$MONEY+*+NOUN
+ss12,1,WAY OVER PRICED ! $ 39 for the dish pictured . ,1,0,0,0,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,1,0,0,1,0,0,1,0,0
+ss114,1,Prices were reasonable and mission accomplished ! ,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+ss16,1,"For how much it cost , it could have been better . ",0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+ss47,1,I bought a Living Social deal $ 30 for $ 60 awhile back . ,1,1,1,1,1,1,1,1,1,0,1,1,1,0,1,1,1,0,0,1,0,1,1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
+ss279,1,The chairs are super comfortable and the prices are reasonable . ,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+ss229,1,There 's a bundle you can buy for 12 wings and pizza for like 22 dollars ! ,0,0,0,0,0,1,1,1,1,1,1,0,1,1,1,0,1,1,1,1,1,1,0,1,1,0,0,0,0,0,1,1,1,1,1,1,1,1,1
+ss3,1,Hence the food is way too pricey for what 's offered ,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+ss57,0,"The food was delicious , and the cake was to die for . ",0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+ss140,0,"needless to say whomever told me this , is a genius . ",1,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,0,0
+ss125,0,the Pork Belly rice is also really good ,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1
+ss71,0,Unfortunately several times its been undercooked where literally another 90sec would ' ve made it awesome ,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+ss52,0,"The food is awesome , fresh , delicious and the best part is , it 's still healthy . ",0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+ss44,0,"Well , massively disappointed with this place . Fries were cold , I mean 5 HOUR cold ! ! The burger ? Smashed together like they were trying to save space in bvb yge bag . ",0,0,0,0,0,0,0,0,1,1,1,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0,0,0
+ss216,0,The building is pretty shanty like but the food is good . ,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+ss15,0,The product itself is a repellent combination of over intense flavours ,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+ss111,0,The girl at check in that took my info just started typing away and did not explain anything to me . ,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+ss119,0,The ladies that work here are all so friendly ! ,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+ss258,0,"Steak was dry as a bone , lasagna was cold . ",1,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,0,0
+ss13,0,"The decor looks a little old fashioned , but that actually adds to the feel and I like it . ",0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+ss287,0,Nicole and Alison at the front were extremely welcoming when I arrived and made me feel very comfortable . ,1,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,0,0
+ss101,0,The waiting staff were very nice . ,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+ss214,0,Ladies at the counter are super helpful and friendly . ,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+ss112,0,"Friendly w / great customer service , reasonable prices , and a chill atmosphere ",1,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,0,0
+ss142,0,Reception hung up on me multiple times and would not listen . ,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0

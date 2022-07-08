@@ -31,7 +31,7 @@ class Synthesizer:
             examples = [line.lower() for line in lines]
         return examples
     
-    def get_literals_space(self, threshold=4):
+    def get_literals_space(self, threshold=4, mention_threshold=3):
         literal_dict = dict()
         words = []
         for ex in self.positive_examples:
@@ -48,7 +48,16 @@ class Synthesizer:
 
         literal_dict =  {k: v for k, v in sorted(literal_dict.items(), key=lambda item: item[1], reverse=True)}
 
-        return list(literal_dict.keys())[:threshold]       #pick the top N most common words
+        literal_space = []
+
+        for word, count in literal_dict.items():
+            if(count<mention_threshold):
+                break
+            else:
+                literal_space.append(word)
+
+        return literal_space
+        # return list(literal_dict.keys())[:threshold]       #pick the top N most common words
 
     def get_search_space(self, literal_threshold=4):
         part_of_speech = [ "PRON","VERB", "PROPN", "NOUN", "ADJ", "ADV", "AUX", "NUM"]
@@ -163,12 +172,13 @@ class Synthesizer:
                 self.search(working_pattern, previous_positive_matched=postive_match_count, previous_negative_matched=negative_match_count, depth=depth+1, search_space=new_search_space)
                 if(previous_positive_matched==0 and postive_match_count<len(self.positive_examples)):
                     #Search with an or too
-                    self.search(working_pattern,  previous_positive_matched=postive_match_count, previous_negative_matched=negative_match_count, depth=depth+1, search_space=new_search_space, make_or=True)
+                    pass
+                self.search(working_pattern,  previous_positive_matched=postive_match_count, previous_negative_matched=negative_match_count, depth=depth+1, search_space=new_search_space, make_or=True)
 
             else:
                 if(make_or):
                     print("Stopping here ", working_pattern, previous_positive_matched, postive_match_count)
-                    continue
+                    # continue
                 if(postive_match_count==0):
                     #No need to go on
                     continue
@@ -195,6 +205,8 @@ class Synthesizer:
         
         self.search("",  search_space=search_space)
         results = sorted(self.patterns_set,key=len, reverse=True)
+
+        print("this are the results, ", self.patterns_set)
         
         
         return results

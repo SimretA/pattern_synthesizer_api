@@ -7,7 +7,7 @@ from synthesizer.penality_based_threaded import Synthesizer
 from fastapi.middleware.cors import CORSMiddleware
 from concurrent.futures import ProcessPoolExecutor
 import asyncio
-
+import time
 
 import pandas as pd
 
@@ -128,7 +128,13 @@ async def testing_patterns():
 
 @app.get("/test/{iteration}/{annotation}")
 async def test(iteration:int, annotation: int):
-    return api_helper.run_test(iteration, annotation)
+    start =  time.time()
+    results = api_helper.run_test(iteration, annotation)
+    end = time.time()
+    print(results)
+    results[0]['time'] = end-start
+
+    return results
 
 @app.get("/themes")
 async def get_themes():
