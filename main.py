@@ -8,10 +8,14 @@ from fastapi.middleware.cors import CORSMiddleware
 from concurrent.futures import ProcessPoolExecutor
 import asyncio
 import time
+from pydantic import BaseModel
+
+
 
 import pandas as pd
 
 import random
+from synthesizer_v2.linear_network import feature_selector
 import torch
 import numpy as np
 
@@ -34,6 +38,15 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+class Item(BaseModel):
+    depth: int
+    rewardThreshold: float
+    penalityThreshold: float
+    featureSelector: int
+
+
+
 
 
 ####v2 endpoints
@@ -127,9 +140,10 @@ async def testing_patterns():
     return api_helper.testing_cache_new()
 
 @app.get("/test/{iteration}/{annotation}")
-async def test(iteration:int, annotation: int):
+async def test(iteration:int, annotation: int, body:Item):
+    print(body)
     start =  time.time()
-    results = api_helper.run_test(iteration, annotation)
+    results = api_helper.run_test(iteration, annotation, depth= body.depth, rewardThreshold=body.rewardThreshold, penalityThreshold=body.penalityThreshold)
     end = time.time()
     print(results)
     results[0]['time'] = end-start

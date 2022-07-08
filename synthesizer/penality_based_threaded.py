@@ -9,7 +9,7 @@ from synthesizer.helpers import show_patters
 nlp = spacy.load("en_core_web_sm")
 
 class Synthesizer:
-    def __init__(self, positive_examples, negative_examples=None, threshold=0.5,literal_threshold=4, max_depth=10) -> None:
+    def __init__(self, positive_examples, negative_examples=None, threshold=0.5,literal_threshold=4, max_depth=10, rewardThreshold=0.01, penalityThreshold=0.3) -> None:
         self.nlp = spacy.load("en_core_web_sm")
         self.threshold = threshold
         self.patterns_set= dict()
@@ -21,6 +21,8 @@ class Synthesizer:
         self.candidate = []
         self.patterns_set = {}
         self.search_track = set()
+        self.rewardThreshold = rewardThreshold
+        self.penalityThreshold = penalityThreshold
         
     def read_examples(self, file):
         examples =[]
@@ -154,7 +156,7 @@ class Synthesizer:
                 fscore = 2*(recall*precision)/(recall+precision)
             except:
                 fscore = 0
-            if(reward==0 or penality>0.3):
+            if(reward<=self.rewardThreshold or penality>self.penalityThreshold):
                 #We know that the previous pattern was working because it got this far without being pruned so we add to the list of candidates
                 if(len(pat)>2 and pat[-1]=="*"):
                     # patterns_set.add(pat[:-2])

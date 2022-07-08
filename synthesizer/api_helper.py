@@ -175,7 +175,7 @@ class APIHelper:
 
         return patterns
 
-    def resyntesize(self):
+    def resyntesize(self, depth=4, rewardThreshold=0.01, penalityThreshold=0.3):
 
         if len(self.labels.keys())==0 or len(self.positive_examples_collector.keys())==0:
             return {"message":"Nothing labeled yet"}
@@ -188,7 +188,7 @@ class APIHelper:
         if(type(cached) != type(None)):
             df = cached
         else:
-            self.synthh = Synthesizer(positive_examples = list(self.positive_examples_collector.values()), negative_examples = list(self.negative_examples_collector.values())+self.negative_phrases)
+            self.synthh = Synthesizer(positive_examples = list(self.positive_examples_collector.values()), negative_examples = list(self.negative_examples_collector.values())+self.negative_phrases, max_depth=depth, rewardThreshold=rewardThreshold, penalityThreshold=penalityThreshold)
             
             self.synthh.find_patters()
             try:
@@ -248,7 +248,7 @@ class APIHelper:
 
         return dataset
 
-    def run_test(self, iteration, no_annotation):
+    def run_test(self, iteration, no_annotation, depth=4, rewardThreshold=0.01, penalityThreshold=0.3):
         self.clear_label()
         pos_count = 0
         neg_count = 0
@@ -272,7 +272,7 @@ class APIHelper:
         print(self.labels)
         for x in range(iteration):
             print("Starting Synthesizing")
-            results = self.resyntesize()
+            results = self.resyntesize(depth=depth, rewardThreshold=rewardThreshold, penalityThreshold=penalityThreshold)
 
             print("Finishing Synthesizing")
             
