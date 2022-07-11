@@ -73,35 +73,35 @@ class Synthesizer:
             final_list = []
             # final_list = simi_list[:threshold]
 
-            for lit in simi_list:
-                flag = True
-                for word in final_list:
-                    if lit in self.similarity_dict[word]:
-                        flag = False
-                        break 
-                if flag:
-                    final_list.append(lit)
-                    if len(final_list) >= threshold: break
-
             # for lit in simi_list:
-            #     if type(self.similarity_dict[lit]) is list:
-            #         setA = set(self.similarity_dict[lit])
-            #     else:
-            #         setA = set(self.similarity_dict[lit].keys())
-            #     setA.add(lit)
             #     flag = True
             #     for word in final_list:
-            #         if type(self.similarity_dict[word]) is list:
-            #             setB = set(self.similarity_dict[word])
-            #         else:
-            #             setB = set(self.similarity_dict[word].keys())
-            #         setB.add(word)
-            #         if setA == setB:
+            #         if lit in self.similarity_dict[word]:
             #             flag = False
             #             break 
             #     if flag:
             #         final_list.append(lit)
             #         if len(final_list) >= threshold: break
+
+            for lit in simi_list:
+                if type(self.similarity_dict[lit]) is list:
+                    setA = set(self.similarity_dict[lit])
+                else:
+                    setA = set(self.similarity_dict[lit].keys())
+                setA.add(lit)
+                flag = True
+                for word in final_list:
+                    if type(self.similarity_dict[word]) is list:
+                        setB = set(self.similarity_dict[word])
+                    else:
+                        setB = set(self.similarity_dict[word].keys())
+                    setB.add(word)
+                    if setA == setB:
+                        flag = False
+                        break 
+                if flag:
+                    final_list.append(lit)
+                    if len(final_list) >= threshold: break
                 
             return final_list
         else:
