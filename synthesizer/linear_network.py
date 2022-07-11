@@ -136,7 +136,7 @@ def feature_selector(df):
 
 def feature_selector_2(df, k):
     patterns = []
-    inputs = df.iloc[:,3:].values
+    # inputs = df.iloc[:,3:].values
     outs = df["labels"].values
 
     for i in range(k):
@@ -152,8 +152,8 @@ def feature_selector_2(df, k):
         corr = df.corr()
         corr.head()
         
-        to_drop = [c for c in corr.columns if corr[selected_patterns[0]][c] >= 0.5] #0.8 chosen at random
-        # print(df.shape[1])
+        to_drop = [c for c in corr.columns if corr[selected_patterns[0]][c] >= 0.5  or pd.isnull(corr[selected_patterns[0]][c])] #0.8 chosen at random
+        print("We will drop ", to_drop)
 
         df = df.drop(to_drop, axis=1)
         print(f'picked {selected_patterns[0]}')
