@@ -23,6 +23,8 @@ class APIHelper:
         self.data = pd.read_csv(f"examples/df/{self.theme}.csv")
         self.labels = {}
         self.themes = {}
+        # to control soft match
+        self.soft_match_on = False
         self.words_dict = {}
         self.similarity_dict = {}
         self.soft_threshold = 0.6
@@ -35,8 +37,8 @@ class APIHelper:
         examples = list(self.positive_examples_collector.values())+list(self.negative_examples_collector.values())
         ids = list(self.positive_examples_collector.keys())+list(self.negative_examples_collector.keys())
         labels = [self.labels[x] for x in ids]
-
-        df = patterns_against_examples(file_name=f"cache/{file_name}.csv",patterns=list(pattern_set.keys()), examples=examples, ids=ids, labels=labels, price=self.data, similarity_dict=self.similarity_dict, soft_threshold=self.soft_threshold)
+        
+        df = patterns_against_examples(file_name=f"cache/{file_name}.csv",patterns=list(pattern_set.keys()), examples=examples, ids=ids, labels=labels, soft_match_on=self.soft_match_on, price=self.data, similarity_dict=self.similarity_dict, soft_threshold=self.soft_threshold)
         return df
 
     def ran_cache(self):
@@ -158,13 +160,13 @@ class APIHelper:
         if(type(cached) != type(None) and False): #for test
             df = cached
         else:
-            self.synthh = Synthesizer(positive_examples = list(self.positive_examples_collector.values()), negative_examples = list(self.negative_examples_collector.values()), price=self.data, words_dict=self.words_dict, similarity_dict=self.similarity_dict,
+            self.synthh = Synthesizer(positive_examples = list(self.positive_examples_collector.values()), negative_examples = list(self.negative_examples_collector.values()), soft_match_on=self.soft_match_on, price=self.data, words_dict=self.words_dict, similarity_dict=self.similarity_dict,
             soft_threshold=self.soft_threshold)
             
             self.synthh.find_patters()
             df = self.save_cache(self.synthh.patterns_set)
         
-        res = train_linear_mode(df=df, price=self.data, words_dict=self.words_dict, similarity_dict=self.similarity_dict, soft_threshold=self.soft_threshold)
+        res = train_linear_mode(df=df, price=self.data, soft_match_on=self.soft_match_on, words_dict=self.words_dict, similarity_dict=self.similarity_dict, soft_threshold=self.soft_threshold)
         return res
 
     def testing_cache(self):
@@ -225,8 +227,9 @@ class APIHelper:
                 elif lbl==0:
                     neg_count+=1
         print(self.labels)
-        self.words_dict, self.similarity_dict = get_similarity_dict(self.data["example"].values, soft_threshold=self.soft_threshold)
-        print("words dict finished")
+        if self.soft_match_on and (self.words_dict is None or self.similarity_dict is None):
+            self.words_dict, self.similarity_dict = get_similarity_dict(self.data["example"].values, soft_threshold=self.soft_threshold)
+            print("words dict finished")
         for x in range(iteration):
             iteration_start_time = time.time()
             print("Starting Synthesizing")
