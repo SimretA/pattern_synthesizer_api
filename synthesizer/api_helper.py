@@ -139,7 +139,8 @@ class APIHelper:
         if(type(cached) != type(None)):
             df = cached
         else:
-            self.synthh = Synthesizer(positive_examples = list(self.positive_examples_collector.values()), negative_examples = list(self.negative_examples_collector.values()))
+            self.synthh = Synthesizer(positive_examples = list(self.positive_examples_collector.values()), negative_examples = list(self.negative_examples_collector.values()), soft_match_on=self.soft_match_on, price=self.data, words_dict=self.words_dict, similarity_dict=self.similarity_dict,
+            soft_threshold=self.soft_threshold)
 
             self.synthh.find_patters()
             
