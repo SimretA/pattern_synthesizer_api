@@ -12,7 +12,8 @@ from synthesizer.helpers import show_patters
 nlp = spacy.load("en_core_web_sm")
 
 class Synthesizer:
-    def __init__(self, positive_examples, negative_examples=None, threshold=0.5,literal_threshold=4, max_depth=10, price=None, words_dict=None, similarity_dict=None, soft_threshold=0.6, soft_topk_on=False, soft_topk=1) -> None:
+    def __init__(self, positive_examples, negative_examples=None, threshold=0.5,literal_threshold=4, max_depth=10, soft_match_on=False, price=None, words_dict=None, similarity_dict=None, soft_threshold=0.6, soft_topk_on=False, soft_topk=1) -> None:
+        self.soft_match_on = soft_match_on
         self.words_dict = words_dict
         self.similarity_dict = similarity_dict
         self.soft_threshold = soft_threshold
@@ -46,77 +47,81 @@ class Synthesizer:
     def get_literals_space(self, threshold=4):
         literal_dict = dict()
         words = []
-        for ex in self.positive_examples:
-            print(type(ex))
-            doc = self.nlp(str(ex))
-            for token in doc:
-                # print(token)
-                if not token.is_stop and not token.is_punct and len(token.text.strip(" "))>1 and not token.pos_ == "NUM" and str(token.lemma_) in self.similarity_dict:
-                    lit = str(token.lemma_)
-                    if(not lit in literal_dict):
-                        literal_dict[lit] = 1
-                    else:
-                        literal_dict[lit] += 1
-                    words.append(token.lemma_)
-        simi_dict = dict()
-        for word in words:
-            simi_dict[str(word)] = literal_dict[str(word)]
-            for sim_words in self.similarity_dict[word]:
-                if sim_words in words: simi_dict[str(word)] += literal_dict[str(sim_words)]
-
-        # literal_dict =  {k: v for k, v in sorted(literal_dict.items(), key=lambda item: item[1], reverse=True)}
-        simi_dict =  {k: v for k, v in sorted(simi_dict.items(), key=lambda item: item[1], reverse=True)}
-        simi_list = list(simi_dict.keys())
-        print(simi_dict)
-        final_list = []
-        # final_list = simi_list[:threshold]
-
-        for lit in simi_list:
-            flag = True
-            for word in final_list:
-                if lit in self.similarity_dict[word]:
-                    flag = False
-                    break 
-            if flag:
-                final_list.append(lit)
-                if len(final_list) >= threshold: break
-
-        # for lit in simi_list:
-        #     if type(self.similarity_dict[lit]) is list:
-        #         setA = set(self.similarity_dict[lit])
-        #     else:
-        #         setA = set(self.similarity_dict[lit].keys())
-        #     setA.add(lit)
-        #     flag = True
-        #     for word in final_list:
-        #         if type(self.similarity_dict[word]) is list:
-        #             setB = set(self.similarity_dict[word])
-        #         else:
-        #             setB = set(self.similarity_dict[word].keys())
-        #         setB.add(word)
-        #         if setA == setB:
-        #             flag = False
-        #             break 
-        #     if flag:
-        #         final_list.append(lit)
-        #         if len(final_list) >= threshold: break
-            
-        return final_list
-        # return list(literal_dict.keys())[:threshold]       #pick the top N most common words
-    
-    def get_synonyms(self, literals, threshold=1):
-        synonyms_ls = []
-        for pattern in literals:
-            pattern = nlp(pattern)
-            synonyms_dict = dict()
+        if self.soft_match_on:
             for ex in self.positive_examples:
+                print(type(ex))
                 doc = self.nlp(str(ex))
                 for token in doc:
-                    if not str(token.lemma_) in literals and not str(token.lemma_) in synonyms_ls and not token.is_stop and not token.is_punct and len(token.text.strip(" "))>1:
-                        synonyms_dict[str(token.lemma_)] = token.similarity(pattern)
-            synonyms_dict = {k: v for k, v in sorted(synonyms_dict.items(), key=lambda item: item[1], reverse=True)}
-            synonyms_ls += list(synonyms_dict.keys())[:threshold]
-        return synonyms_ls
+                    # print(token)
+                    if not token.is_stop and not token.is_punct and len(token.text.strip(" "))>1 and not token.pos_ == "NUM" and str(token.lemma_) in self.similarity_dict:
+                        lit = str(token.lemma_)
+                        if(not lit in literal_dict):
+                            literal_dict[lit] = 1
+                        else:
+                            literal_dict[lit] += 1
+                        words.append(token.lemma_)
+            simi_dict = dict()
+            for word in words:
+                simi_dict[str(word)] = literal_dict[str(word)]
+                for sim_words in self.similarity_dict[word]:
+                    if sim_words in words: simi_dict[str(word)] += literal_dict[str(sim_words)]
+
+            # literal_dict =  {k: v for k, v in sorted(literal_dict.items(), key=lambda item: item[1], reverse=True)}
+            simi_dict =  {k: v for k, v in sorted(simi_dict.items(), key=lambda item: item[1], reverse=True)}
+            simi_list = list(simi_dict.keys())
+            print(simi_dict)
+            final_list = []
+            # final_list = simi_list[:threshold]
+
+            for lit in simi_list:
+                flag = True
+                for word in final_list:
+                    if lit in self.similarity_dict[word]:
+                        flag = False
+                        break 
+                if flag:
+                    final_list.append(lit)
+                    if len(final_list) >= threshold: break
+
+            # for lit in simi_list:
+            #     if type(self.similarity_dict[lit]) is list:
+            #         setA = set(self.similarity_dict[lit])
+            #     else:
+            #         setA = set(self.similarity_dict[lit].keys())
+            #     setA.add(lit)
+            #     flag = True
+            #     for word in final_list:
+            #         if type(self.similarity_dict[word]) is list:
+            #             setB = set(self.similarity_dict[word])
+            #         else:
+            #             setB = set(self.similarity_dict[word].keys())
+            #         setB.add(word)
+            #         if setA == setB:
+            #             flag = False
+            #             break 
+            #     if flag:
+            #         final_list.append(lit)
+            #         if len(final_list) >= threshold: break
+                
+            return final_list
+        else:
+            for ex in self.positive_examples:
+                print(type(ex))
+                doc = self.nlp(str(ex))
+                for token in doc:
+                    # print(token)
+                    if not token.is_stop and not token.is_punct and len(token.text.strip(" "))>1:
+                        lit = str(token.lemma_)
+                        if(not lit in literal_dict):
+                            literal_dict[lit] = 1
+                        else:
+                            literal_dict[lit] += 1
+                        words.append(token.lemma_)
+
+            literal_dict =  {k: v for k, v in sorted(literal_dict.items(), key=lambda item: item[1], reverse=True)}
+
+            return list(literal_dict.keys())[:threshold]       #pick the top N most common words
+    
 
     def get_search_space(self, literal_threshold=4):
         part_of_speech = [ "PRON","VERB", "PROPN", "NOUN", "ADJ", "ADV", "AUX", "NUM"]
@@ -138,26 +143,6 @@ class Synthesizer:
             symbol = stru(LITERAL, f"[{pattern}]")
             print("literal: " + symbol.type_ + symbol.value_1)
             self.search_space.append(symbol)
-            # add synonyms
-            # synonyms = []
-            # for syn in wordnet.synsets(pattern):
-            #     for l in syn.lemmas():
-            #         if l.name() != pattern:
-            #             synonyms.append(l.name())
-            # synonyms = set(synonyms)
-            # print('syn num: ' + str(len(synonyms)))
-            # print(synonyms)
-            # for syn in synonyms:
-            #     symbol = stru(LITERAL, f"[{syn}]")
-            #     self.search_space.append(symbol)
-        
-        # by similarity
-        # synonyms = self.get_synonyms(literals)
-        # for syn in synonyms:
-        #     print("synonyms :" + syn)
-        #     symbol = stru(LITERAL, f"[{syn}]")
-        #     self.search_space.append(symbol)
-
         for pattern in entities:
             symbol = stru(ENTITY, f"${pattern}")
             self.search_space.append(symbol)
@@ -200,7 +185,8 @@ class Synthesizer:
 
             #to turn on soft match
             # soft_match_positives(working_list, self.positive_examples, price=self.price, threshold=0.6)
-            soft_match_positives(working_list, price=self.price, similarity_dict=self.similarity_dict, threshold=self.soft_threshold)
+            if self.soft_match_on:
+                soft_match_positives(working_list, price=self.price, similarity_dict=self.similarity_dict, threshold=self.soft_threshold)
             
             postive_match_count = match_positives(working_list, self.positive_examples)
             negative_match_count = match_positives(working_list, self.negative_examples, negative_set=True)
