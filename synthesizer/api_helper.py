@@ -24,7 +24,7 @@ class APIHelper:
         self.labels = {}
         self.themes = {}
         # to control soft match
-        self.soft_match_on = False
+        self.soft_match_on = True
         self.words_dict = {}
         self.similarity_dict = {}
         self.soft_threshold = 0.6
@@ -227,7 +227,7 @@ class APIHelper:
                 elif lbl==0:
                     neg_count+=1
         print(self.labels)
-        if self.soft_match_on and (self.words_dict is None or self.similarity_dict is None):
+        if self.soft_match_on and (len(self.words_dict) <= 0 or len(self.similarity_dict) <= 0):
             self.words_dict, self.similarity_dict = get_similarity_dict(self.data["example"].values, soft_threshold=self.soft_threshold)
             print("words dict finished")
         for x in range(iteration):
