@@ -173,12 +173,14 @@ def check_matching(sent, working_list, explain=False):
         return (False, "")
     return False
 
-def patterns_against_examples(file_name, patterns, examples, ids, labels, price=None, similarity_dict=None, soft_threshold=0.6, topk_on=False, topk=1):
+def patterns_against_examples(file_name, patterns, examples, ids, labels, soft_match_on=False, price=None, similarity_dict=None, soft_threshold=0.6, topk_on=False, topk=1):
     results = []
     for pattern in patterns:
         pattern_result = []
         working_list = expand_working_list(pattern)
-        soft_match_positives(working_list, price=price, similarity_dict=similarity_dict, threshold=soft_threshold)
+        #when soft_match on
+        if soft_match_on:
+            soft_match_positives(working_list, price=price, similarity_dict=similarity_dict, threshold=soft_threshold)
         for sent in examples:
             if(check_matching(sent, working_list)):
                 pattern_result.append(1)
@@ -277,7 +279,7 @@ def feature_selector_2(df, k):
             break
     return patterns
 
-def train_linear_mode(df, price, words_dict=None, similarity_dict=None, soft_threshold=0.6, soft_topk_on=False, soft_topk=1):
+def train_linear_mode(df, price, soft_match_on=False, words_dict=None, similarity_dict=None, soft_threshold=0.6, soft_topk_on=False, soft_topk=1):
     
     outs = df["labels"].values
     
@@ -332,8 +334,9 @@ def train_linear_mode(df, price, words_dict=None, similarity_dict=None, soft_thr
         selected_working_list.append(expand_working_list(pattern))
 
     #soft match on
-    similar_words = check_soft_matching(price, selected_working_list, explain=True, similarity_dict=similarity_dict, threshold=soft_threshold, topk_on=soft_topk_on, topk=soft_topk)
-    print("modified working_list: {}".format(selected_working_list))
+    if soft_match_on:
+        similar_words = check_soft_matching(price, selected_working_list, explain=True, similarity_dict=similarity_dict, threshold=soft_threshold, topk_on=soft_topk_on, topk=soft_topk)
+        print("modified working_list: {}".format(selected_working_list))
 
 
     for pattern in selected_patterns:
@@ -348,7 +351,7 @@ def train_linear_mode(df, price, words_dict=None, similarity_dict=None, soft_thr
             it_matched = check_matching(sentence, selected_working_list[i], explain=True)
 
             #check soft
-            if it_matched[0]:
+            if soft_match_on and it_matched[0]:
                 no_soft = False
                 for pattern in selected_working_list[i]:
                     if no_soft: continue
