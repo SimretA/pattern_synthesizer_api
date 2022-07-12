@@ -298,14 +298,14 @@ def feature_selector_2(df, k):
             break
     return patterns
 
-def train_linear_mode(df, price, words_dict=None, similarity_dict=None, soft_threshold=0.6, soft_topk_on=False, soft_topk=1):
+def train_linear_mode(df, price, soft_match_on=False, words_dict=None, similarity_dict=None, soft_threshold=0.6, soft_topk_on=False, soft_topk=1):
     
     outs = df["labels"].values
     
 
     # cols = feature_selector(df)
 
-    cols = feature_selector_2(df, 5)
+    cols = feature_selector_2(df, 10)
 
     print(f'columns are {cols}')
    
@@ -325,13 +325,12 @@ def train_linear_mode(df, price, words_dict=None, similarity_dict=None, soft_thr
     net = torch.nn.Linear(ins.shape[1],1, bias=False)
     sigmoid = torch.nn.Sigmoid()
 
-    # criterion = torch.nn.BCELoss()
-    criterion = torch.nn.MSELoss(size_average=False)
+    criterion = torch.nn.BCELoss()
     optimizer = torch.optim.SGD(net.parameters(), lr=0.1)
     losses = []
     net.train()
     print("training ...")
-    for e in range(50):
+    for e in range(100):
         optimizer.zero_grad()
         o =  sigmoid.forward(net.forward(ins.float()))
             
@@ -354,8 +353,9 @@ def train_linear_mode(df, price, words_dict=None, similarity_dict=None, soft_thr
         selected_working_list.append(expand_working_list(pattern))
 
     #soft match on
-    similar_words = check_soft_matching(price, selected_working_list, explain=True, similarity_dict=similarity_dict, threshold=soft_threshold, topk_on=soft_topk_on, topk=soft_topk)
-    print("modified working_list: {}".format(selected_working_list))
+    if soft_match_on:
+        similar_words = check_soft_matching(price, selected_working_list, explain=True, similarity_dict=similarity_dict, threshold=soft_threshold, topk_on=soft_topk_on, topk=soft_topk)
+        print("modified working_list: {}".format(selected_working_list))
 
 
     for pattern in selected_patterns:
@@ -370,7 +370,7 @@ def train_linear_mode(df, price, words_dict=None, similarity_dict=None, soft_thr
             it_matched = check_matching(sentence, selected_working_list[i], explain=True)
 
             #check soft
-            if it_matched[0]:
+            if soft_match_on and it_matched[0]:
                 no_soft = False
                 for pattern in selected_working_list[i]:
                     if no_soft: continue

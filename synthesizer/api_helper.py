@@ -39,8 +39,9 @@ class APIHelper:
         self.results = {}
 
         self.words_dict = {}
-        self.similarity_dict = {}
         self.soft_threshold = 0.6
+        self.words_dict, self.similarity_dict = get_similarity_dict(self.data["example"].values, soft_threshold=self.soft_threshold)
+
         self.soft_topk_on = False
         self.topk = 1
     

@@ -61,6 +61,8 @@ class Synthesizer:
                     else:
                         literal_dict[lit] += 1
                     words.append(token.lemma_)
+        print("Literal dictionary ", literal_dict)
+        print("similarity dic, ", self.similarity_dict)
         simi_dict = dict()
         for word in words:
             simi_dict[str(word)] = literal_dict[str(word)]
