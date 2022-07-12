@@ -186,7 +186,6 @@ class APIHelper:
 
             self.synthh.find_patters()
 
-            df = self.save_cache(self.synthh.patterns_set)
             
 
             try:
