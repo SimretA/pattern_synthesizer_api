@@ -27,7 +27,7 @@ class APIHelper:
         self.soft_match_on = True
         self.words_dict = {}
         self.similarity_dict = {}
-        self.soft_threshold = 0.4
+        self.soft_threshold = 0.6
         self.soft_topk_on = False
         self.topk = 1
     
