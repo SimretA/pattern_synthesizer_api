@@ -61,8 +61,6 @@ class Synthesizer:
                     else:
                         literal_dict[lit] += 1
                     words.append(token.lemma_)
-        print("Literal dictionary ", literal_dict)
-        print("similarity dic, ", self.similarity_dict)
         simi_dict = dict()
         for word in words:
             simi_dict[str(word)] = literal_dict[str(word)]
@@ -77,6 +75,9 @@ class Synthesizer:
         # final_list = simi_list[:threshold]
 
         for lit in simi_list:
+            if(simi_dict[lit]<mention_threshold):
+                print("work not mentioned enough ", lit)
+                continue
             flag = True
             for word in final_list:
                 if lit in self.similarity_dict[word]:

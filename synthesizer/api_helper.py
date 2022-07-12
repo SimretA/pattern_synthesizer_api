@@ -40,6 +40,7 @@ class APIHelper:
 
         self.words_dict = {}
         self.soft_threshold = 0.6
+        self.soft_match_on = False
         self.words_dict, self.similarity_dict = get_similarity_dict(self.data["example"].values, soft_threshold=self.soft_threshold)
 
         self.soft_topk_on = False
@@ -52,7 +53,7 @@ class APIHelper:
         ids = list(self.positive_examples_collector.keys())+list(self.negative_examples_collector.keys())
         labels = [self.labels[x] for x in ids]
 
-        df = patterns_against_examples(file_name=f"cache/{file_name}.csv",patterns=list(pattern_set.keys()), examples=examples, ids=ids, labels=labels, priority_phrases=self.negative_phrases)
+        df = patterns_against_examples(file_name=f"cache/{file_name}.csv",patterns=list(pattern_set.keys()), examples=examples, ids=ids, labels=labels, priority_phrases=self.negative_phrases, soft_match_on=self.soft_match_on, price=self.data, similarity_dict=self.similarity_dict, soft_threshold=self.soft_threshold)
         return df
 
     def ran_cache(self):
@@ -184,11 +185,14 @@ class APIHelper:
             soft_threshold=self.soft_threshold)
 
             self.synthh.find_patters()
+
+            df = self.save_cache(self.synthh.patterns_set)
             
 
             try:
                 df = self.save_cache(self.synthh.patterns_set)
             except:
+                print(self.synthh.patterns_set)
                 return {"message":"Annotate Some More"}
         
         patterns = get_patterns(df, self.labels)

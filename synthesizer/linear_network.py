@@ -187,7 +187,7 @@ def check_matching(sent, working_list, explain=False):
         return (False, "")
     return False
 
-def patterns_against_examples(file_name, patterns, examples, ids, labels,priority_phrases, price=None, similarity_dict=None, soft_threshold=0.6, topk_on=False, topk=1):
+def patterns_against_examples(file_name, patterns, examples, ids, labels,priority_phrases, price=None, similarity_dict=None, soft_threshold=0.6, topk_on=False, topk=1, soft_match_on=False):
     results = []
     for pattern in patterns:
         pattern_result = []
