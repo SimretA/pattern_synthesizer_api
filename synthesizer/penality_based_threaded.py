@@ -12,7 +12,7 @@ from synthesizer.helpers import show_patters
 nlp = spacy.load("en_core_web_sm")
 
 class Synthesizer:
-    def __init__(self, positive_examples, negative_examples=None, threshold=0.5,literal_threshold=4, max_depth=10, price=None, words_dict=None, similarity_dict=None, soft_threshold=0.6, soft_topk_on=False, soft_topk=1) -> None:
+    def __init__(self, positive_examples, negative_examples=None, threshold=0.5,literal_threshold=4, max_depth=10, rewardThreshold=0.01, penalityThreshold=0.3, price=None, words_dict=None, similarity_dict=None, soft_threshold=0.6, soft_topk_on=False, soft_topk=1) -> None:
         self.words_dict = words_dict
         self.similarity_dict = similarity_dict
         self.soft_threshold = soft_threshold
@@ -31,6 +31,9 @@ class Synthesizer:
         self.patterns_set = {}
         self.search_track = set()
         self.price = price
+
+        self.rewardThreshold = rewardThreshold
+        self.penalityThreshold = penalityThreshold
         
         
     
@@ -43,12 +46,12 @@ class Synthesizer:
             examples = [line.lower() for line in lines]
         return examples
     
-    def get_literals_space(self, threshold=4):
+    def get_literals_space(self, threshold=4,  mention_threshold=3):
         literal_dict = dict()
         words = []
-        for ex in self.positive_examples:
-            print(type(ex))
-            doc = self.nlp(str(ex))
+        for doc in self.positive_examples:
+            # print(doc)
+            # doc = self.nlp(str(ex))
             for token in doc:
                 # print(token)
                 if not token.is_stop and not token.is_punct and len(token.text.strip(" "))>1 and not token.pos_ == "NUM" and str(token.lemma_) in self.similarity_dict:
@@ -100,9 +103,8 @@ class Synthesizer:
         #     if flag:
         #         final_list.append(lit)
         #         if len(final_list) >= threshold: break
-            
+        print(final_list)    
         return final_list
-        # return list(literal_dict.keys())[:threshold]       #pick the top N most common words
     
     def get_synonyms(self, literals, threshold=1):
         synonyms_ls = []
@@ -166,10 +168,19 @@ class Synthesizer:
     
     def search(self, pat,  previous_positive_matched=0, previous_negative_matched=0, depth=0, make_or=False, search_space=None):
         self.search_track.add(pat)
-        if(depth>10):
-            print("***ERROR MAX DEPTH REACHED")
-            print(f'Pattern: {pat}')
+        if(depth>=self.max_depth):
+            # print("***ERROR MAX DEPTH REACHED")
+            # print(f'Pattern: {pat}')
+            recall = previous_positive_matched / len(self.positive_examples)
+            try:
+                precision = previous_positive_matched/(previous_positive_matched+previous_negative_matched)
+            except:
+                print("Error caught - ", pat, previous_negative_matched, previous_positive_matched)
+            fscore = 2*(recall*precision)/(recall+precision)
+
+            self.patterns_set[pat] = [precision, recall, fscore]
             return
+
         for p in search_space:
             if(depth==0 and p.type_==WILD):
                 continue
@@ -228,7 +239,8 @@ class Synthesizer:
                 fscore = 2*(recall*precision)/(recall+precision)
             except:
                 fscore = 0
-            if(reward<0.1 or penality>0.3):
+
+            if(reward<=self.rewardThreshold or penality>self.penalityThreshold):
                 #We know that the previous pattern was working because it got this far without being pruned so we add to the list of candidates
                 if(len(pat)>2 and pat[-1]=="*"):
                     # patterns_set.add(pat[:-2])
@@ -242,22 +254,23 @@ class Synthesizer:
 
 
 
-            if(postive_match_count>previous_positive_matched and depth<10):
+            if(postive_match_count>previous_positive_matched and depth<self.max_depth):
                 self.search(working_pattern, previous_positive_matched=postive_match_count, previous_negative_matched=negative_match_count, depth=depth+1, search_space=new_search_space)
                 if(previous_positive_matched==0 and postive_match_count<len(self.positive_examples)):
                     #Search with an or too
-                    self.search(working_pattern,  previous_positive_matched=postive_match_count, previous_negative_matched=negative_match_count, depth=depth+1, search_space=new_search_space, make_or=True)
+                    pass
+                self.search(working_pattern,  previous_positive_matched=postive_match_count, previous_negative_matched=negative_match_count, depth=depth+1, search_space=new_search_space, make_or=True)
 
             else:
                 if(make_or):
-                    print("Stopping here ", working_pattern, previous_positive_matched, postive_match_count)
+                    # print("Stopping here ", working_pattern, previous_positive_matched, postive_match_count)
                     continue
                 if(postive_match_count==0):
                     #No need to go on
                     continue
                 if(postive_match_count==previous_positive_matched):
                     if(pat!="" ):
-                        print(f"pat {pat} with {p.value_1}")
+                        # print(f"pat {pat} with {p.value_1}")
                         
                         self.search(working_pattern, previous_positive_matched=postive_match_count, previous_negative_matched=negative_match_count, depth=depth+1, search_space=new_search_space)
                 else:

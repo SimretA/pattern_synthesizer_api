@@ -9,6 +9,10 @@ import spacy
 import random
 import time
 
+import asyncio
+
+loop = asyncio.get_event_loop()
+
 nlp = spacy.load("en_core_web_sm")
         
 
@@ -16,13 +20,24 @@ class APIHelper:
     def __init__(self):
         self.positive_examples_collector = {}
         self.negative_examples_collector = {}
+
+        self.negative_phrases = []
         self.theme = "price_service_300"
+        self.selected_theme = "price"
+
+        # self.theme = "price_service"
 
         # self.theme = "hate_speech_binary"
 
         self.data = pd.read_csv(f"examples/df/{self.theme}.csv")
+        self.data['positive'] = self.data['label'].apply(lambda x: x==self.selected_theme)
+        self.priority_unmatch = []
+        self.priority_match = []
+
         self.labels = {}
         self.themes = {}
+        self.results = {}
+
         self.words_dict = {}
         self.similarity_dict = {}
         self.soft_threshold = 0.6
@@ -36,7 +51,7 @@ class APIHelper:
         ids = list(self.positive_examples_collector.keys())+list(self.negative_examples_collector.keys())
         labels = [self.labels[x] for x in ids]
 
-        df = patterns_against_examples(file_name=f"cache/{file_name}.csv",patterns=list(pattern_set.keys()), examples=examples, ids=ids, labels=labels, price=self.data, similarity_dict=self.similarity_dict, soft_threshold=self.soft_threshold)
+        df = patterns_against_examples(file_name=f"cache/{file_name}.csv",patterns=list(pattern_set.keys()), examples=examples, ids=ids, labels=labels, priority_phrases=self.negative_phrases)
         return df
 
     def ran_cache(self):
@@ -48,6 +63,28 @@ class APIHelper:
             print("cache miss")
             return None
     ####### End Points ######
+
+    def set_theme(self, theme):
+        self.selected_theme = theme
+
+        self.data['positive'] = self.data['label'].apply(lambda x: x==self.selected_theme)
+        self.clear_label()
+
+        return self.get_labeled_dataset()
+    
+    def get_themes(self):
+        return list(self.data['label'].unique())
+    
+    def get_selected_theme(self):
+        return self.selected_theme
+
+
+    def label_by_phrase(self, phrase, label):
+        self.negative_phrases.append(nlp(phrase.strip()))
+        # self.priority_unmatch.append(phrase)
+        # print(list(self.negative_examples_collector.values())+self.negative_phrases)
+        return {"status":200, "message":"ok", "phrase":phrase, "label":label}
+
 
     def add_theme(self, theme):
         self.themes[theme] = {}
@@ -102,6 +139,7 @@ class APIHelper:
         
         self.negative_examples_collector.clear()
         self.positive_examples_collector.clear()
+        self.negative_phrases = []
 
         return {"message":"okay", "status":200}
 
@@ -128,79 +166,103 @@ class APIHelper:
 
         return dataset
 
-    def all_patterns(self):
+    def all_patterns(self, depth=4, rewardThreshold=0.01, penalityThreshold=0.3):
         if len(self.labels.keys())==0 or len(self.positive_examples_collector.keys())==0:
             return {"message":"Nothing labeled yet"}
 
         #Check if data is in the chache
         cached = self.ran_cache()
+
+        #For testing 
+        # cached = None
+
         if(type(cached) != type(None)):
             df = cached
         else:
-            self.synthh = Synthesizer(positive_examples = list(self.positive_examples_collector.values()), negative_examples = list(self.negative_examples_collector.values()))
+            self.synthh = Synthesizer(positive_examples = list(self.positive_examples_collector.values()), negative_examples = list(self.negative_examples_collector.values())+self.negative_phrases, max_depth=depth, rewardThreshold=rewardThreshold, penalityThreshold=penalityThreshold, price=self.data, words_dict=self.words_dict, similarity_dict=self.similarity_dict,
+            soft_threshold=self.soft_threshold)
 
             self.synthh.find_patters()
             
 
-            df = self.save_cache(self.synthh.patterns_set)
+            try:
+                df = self.save_cache(self.synthh.patterns_set)
+            except:
+                return {"message":"Annotate Some More"}
         
         patterns = get_patterns(df, self.labels)
 
         return patterns
 
-    def resyntesize(self):
+    def resyntesize(self, depth=4, rewardThreshold=0.01, penalityThreshold=0.3):
 
         if len(self.labels.keys())==0 or len(self.positive_examples_collector.keys())==0:
             return {"message":"Nothing labeled yet"}
 
         #Check if data is in the chache    
         cached = self.ran_cache()
+        
+        #For testing 
+        # cached = None
         if(type(cached) != type(None) and False): #for test
             df = cached
         else:
-            self.synthh = Synthesizer(positive_examples = list(self.positive_examples_collector.values()), negative_examples = list(self.negative_examples_collector.values()), price=self.data, words_dict=self.words_dict, similarity_dict=self.similarity_dict,
+            self.synthh = Synthesizer(positive_examples = list(self.positive_examples_collector.values()), negative_examples = list(self.negative_examples_collector.values())+self.negative_phrases, max_depth=depth, rewardThreshold=rewardThreshold, penalityThreshold=penalityThreshold, price=self.data, words_dict=self.words_dict, similarity_dict=self.similarity_dict,
             soft_threshold=self.soft_threshold)
             
             self.synthh.find_patters()
-            df = self.save_cache(self.synthh.patterns_set)
+
+            try:
+                df = self.save_cache(self.synthh.patterns_set)
+            except:
+               return {"message":"Annotate Some More"}
         
         res = train_linear_mode(df=df, price=self.data, words_dict=self.words_dict, similarity_dict=self.similarity_dict, soft_threshold=self.soft_threshold)
         return res
 
-    def testing_cache(self):
-        pos_count = 0
-        neg_count = 0
-        collector = []
-        annotation = {"1":1, "2":1, "3":0, "4":0, "5":0,"6":1, "7":1, "8":0, "9":0, "10":1 ,"11":1,"12":1, "13":1, "14":1, "15":0, "16":0, "17":0, "18":0, "19":1, "20":1, "22":1, "23":1, "24":0, "25": 0 }
-        self.clear_label()
-        for i in annotation.keys():
+    
+    def get_related(self, id):
 
-            lbl = self.data[self.data["id"]==int(i)]["positive"].tolist()[0]
-            self.labeler(i, lbl)
-            if lbl ==1:
-                pos_count+=1
-            elif lbl==0:
-                neg_count+=1
-            print(self.labels)
-            
-            results = self.resyntesize()
-            temp = dict()
-            temp["fscore"] = results["fscore"]
-            temp["recall"] = results["recall"]
-            temp["precision"] = results["precision"]
+        # print(self.results)
 
-            temp["overall_fscore"] = results["overall_fscore"]
-            temp["overall_recall"] = results["overall_recall"]
-            temp["overall_precision"] = results["overall_precision"]
+        
+        # explanation = self.results['explanation']
+        # sentence_explanation = []
 
-            temp["positive_annotated"] = pos_count
-            temp["negative_annotated"] = neg_count
-            collector.append(temp)
+        
+        # for key,value in explanation.items():
+        #     sentence_explanation.append({key:value[id]})
+
+        score = self.results['scores'][id]
+
+        related = []
+
+        for sentence_id in list(self.data['id'].values):
+            if sentence_id == id:
+                continue
+            if self.results['scores'][sentence_id] == score:
+                related.append(sentence_id)
+        
+        dataset = []
+        
+        for i in related:
+            item = dict()
+            item["id"] = str(i)
+            item["example"] = self.data[self.data["id"] == i]["example"].values[0]
+            item["true_label"] = self.data[self.data["id"] == i]["positive"].values.tolist()[0]
+            item["score"] = None
+            if(str(i) in self.labels):
+                item["user_label"] = self.labels[str(i)]
+            else:
+                item["user_label"] = None
+            # print()
+
+            dataset.append(item)
 
 
-        return collector
+        return dataset
 
-    def run_test(self, iteration, no_annotation):
+    def run_test(self, iteration, no_annotation, depth=4, rewardThreshold=0.01, penalityThreshold=0.3):
         start_time = time.time()
         
         self.clear_label()
@@ -230,7 +292,7 @@ class APIHelper:
         for x in range(iteration):
             iteration_start_time = time.time()
             print("Starting Synthesizing")
-            results = self.resyntesize()
+            results = self.resyntesize(depth=depth, rewardThreshold=rewardThreshold, penalityThreshold=penalityThreshold)
 
             print("Finishing Synthesizing")
             

@@ -8,6 +8,8 @@ from sklearn.feature_selection import f_classif
 
 from sklearn.metrics import precision_recall_fscore_support
 
+from functools import reduce
+
 
 import spacy
 from spacy.matcher import Matcher
@@ -32,6 +34,17 @@ model_name = "LM"
 
 import pickle
 import random
+
+def get_spanning(matches, sent):
+    ranges = [(x[1],x[2]) for x in matches]
+    reducer = (lambda acc, el: acc[:-1:] + [(min(*acc[-1], *el), max(*acc[-1], *el))]
+    if acc[-1][1] > el[0] else acc + [el] )
+    spanning = reduce(reducer, ranges[1::], [ranges[0]])
+    
+    result_matches = []
+    for i, j in spanning:
+        result_matches.append([sent.split(" ")[i:j], i, j])
+    return result_matches
 
 def check_soft_matching(price, working_list, explain=False, similarity_dict=None, threshold=0.6, topk_on=False, topk=1):
     lemmas = []
@@ -162,18 +175,19 @@ def check_matching(sent, working_list, explain=False):
     for index, patterns in enumerate(working_list):
         matcher.add(f"rule{index}", [patterns])
     doc = nlp(str(sent))
+    
     matches = matcher(doc)
     if(matches is not None and len(matches)>0):
+        if(explain):
+            return(True, get_spanning(matches, sent) )
         for id, start, end in matches:
             if(str(doc[start:end]).strip() !=""):
-                if(explain):
-                    return (True, [str(doc[start:end]).strip(), start, end])
                 return True
     if(explain):
         return (False, "")
     return False
 
-def patterns_against_examples(file_name, patterns, examples, ids, labels, price=None, similarity_dict=None, soft_threshold=0.6, topk_on=False, topk=1):
+def patterns_against_examples(file_name, patterns, examples, ids, labels,priority_phrases, price=None, similarity_dict=None, soft_threshold=0.6, topk_on=False, topk=1):
     results = []
     for pattern in patterns:
         pattern_result = []
@@ -184,14 +198,21 @@ def patterns_against_examples(file_name, patterns, examples, ids, labels, price=
                 pattern_result.append(1)
             else:
                 pattern_result.append(0)
+        for phrase in priority_phrases:
+            print(f'{phrase} with {pattern} => {check_matching(f"{phrase} ", working_list)}')
+            if(check_matching(f'{phrase} ', working_list)):
+                pattern_result.append(1)
+            else:
+                pattern_result.append(0)
+        
         results.append(pattern_result)
     res = np.asarray(results).T
     df = pd.DataFrame(res, columns=patterns)
-    df.insert(0,"sentences", examples)
+    df.insert(0,"sentences", examples+priority_phrases)
     print(df.shape)
-    df.insert(0,"labels", labels)
+    df.insert(0,"labels", labels+([0] * len(priority_phrases)))
 
-    df["id"] = ids
+    df["id"] = ids+[f'phrase{i}' for i in range(len(priority_phrases))]
 
     df = df.set_index("id")
     df.to_csv(file_name)
@@ -284,7 +305,7 @@ def train_linear_mode(df, price, words_dict=None, similarity_dict=None, soft_thr
 
     # cols = feature_selector(df)
 
-    cols = feature_selector_2(df, 10)
+    cols = feature_selector_2(df, 5)
 
     print(f'columns are {cols}')
    
@@ -304,12 +325,13 @@ def train_linear_mode(df, price, words_dict=None, similarity_dict=None, soft_thr
     net = torch.nn.Linear(ins.shape[1],1, bias=False)
     sigmoid = torch.nn.Sigmoid()
 
-    criterion = torch.nn.BCELoss()
+    # criterion = torch.nn.BCELoss()
+    criterion = torch.nn.MSELoss(size_average=False)
     optimizer = torch.optim.SGD(net.parameters(), lr=0.1)
     losses = []
     net.train()
     print("training ...")
-    for e in range(100):
+    for e in range(50):
         optimizer.zero_grad()
         o =  sigmoid.forward(net.forward(ins.float()))
             
