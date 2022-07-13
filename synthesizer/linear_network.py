@@ -191,7 +191,7 @@ def patterns_against_examples(file_name, patterns, examples, ids, labels,priorit
     results = []
     for pattern in patterns:
         pattern_result = []
-        working_list = expand_working_list(pattern)
+        working_list = expand_working_list(pattern, soft_match_on=soft_match_on, similarity_dict=similarity_dict)
         soft_match_positives(working_list, price=price, similarity_dict=similarity_dict, threshold=soft_threshold)
         for sent in examples:
             if(check_matching(sent, working_list)):
@@ -350,7 +350,7 @@ def train_linear_mode(df, price, soft_match_on=False, words_dict=None, similarit
     selected_working_list = []
     matched_parts = {}
     for pattern in selected_patterns:
-        selected_working_list.append(expand_working_list(pattern))
+        selected_working_list.append(expand_working_list(pattern, soft_match_on=soft_match_on, similarity_dict=similarity_dict))
 
     #soft match on
     if soft_match_on:
@@ -370,33 +370,33 @@ def train_linear_mode(df, price, soft_match_on=False, words_dict=None, similarit
             it_matched = check_matching(sentence, selected_working_list[i], explain=True)
 
             #check soft
-            if soft_match_on and it_matched[0]:
-                no_soft = False
-                for pattern in selected_working_list[i]:
-                    if no_soft: continue
-                    pat_temp = copy.deepcopy(pattern)
-                    for pat in pat_temp:
-                        if 'LEMMA' in pat and 'IN' in pat['LEMMA'] and pat['OP'] == '+':
-                            pat['LEMMA']['IN'] = [pat['LEMMA']['IN'][0]]
-                    rule_matcher = Matcher(nlp.vocab)
-                    rule_matcher.add("rule",[pat_temp])
-                    rule_matches = rule_matcher(nlp(it_matched[1][0]))
-                    if rule_matches is not None and len(rule_matches)>0:
-                        no_soft = True
-                        continue
-                    for pat in pattern:
-                        if 'LEMMA' in pat and 'IN' in pat['LEMMA'] and pat['OP'] == '+' and len(pat['LEMMA']['IN']) > 1:
-                            soft_rule = [{"LEMMA": {"IN": pat['LEMMA']['IN'][1:]}, "OP" : "+"}]
-                            lemma_rule = [{"LEMMA": {"IN": [pat['LEMMA']['IN'][0]]}, "OP" : "+"}]
-                            matcher = Matcher(nlp.vocab)
-                            lemma_matcher = Matcher(nlp.vocab)
-                            matcher.add("soft",[soft_rule])
-                            lemma_matcher.add("lemma",[lemma_rule])
-                            matches = matcher(nlp(it_matched[1][0]))
-                            lemma_matches = lemma_matcher(nlp(it_matched[1][0]))
-                            if matches is not None and len(matches)>0 and len(lemma_matches) <= 0:
-                                it_matched[1].append('softmatch: ['+str(pat['LEMMA']['IN'][0])+'] ')
-                                break
+            # if soft_match_on and it_matched[0]:
+            #     no_soft = False
+            #     for pattern in selected_working_list[i]:
+            #         if no_soft: continue
+            #         pat_temp = copy.deepcopy(pattern)
+            #         for pat in pat_temp:
+            #             if 'LEMMA' in pat and 'IN' in pat['LEMMA'] and pat['OP'] == '+':
+            #                 pat['LEMMA']['IN'] = [pat['LEMMA']['IN'][0]]
+            #         rule_matcher = Matcher(nlp.vocab)
+            #         rule_matcher.add("rule",[pat_temp])
+            #         rule_matches = rule_matcher(nlp(it_matched[1][0]))
+            #         if rule_matches is not None and len(rule_matches)>0:
+            #             no_soft = True
+            #             continue
+            #         for pat in pattern:
+            #             if 'LEMMA' in pat and 'IN' in pat['LEMMA'] and pat['OP'] == '+' and len(pat['LEMMA']['IN']) > 1:
+            #                 soft_rule = [{"LEMMA": {"IN": pat['LEMMA']['IN'][1:]}, "OP" : "+"}]
+            #                 lemma_rule = [{"LEMMA": {"IN": [pat['LEMMA']['IN'][0]]}, "OP" : "+"}]
+            #                 matcher = Matcher(nlp.vocab)
+            #                 lemma_matcher = Matcher(nlp.vocab)
+            #                 matcher.add("soft",[soft_rule])
+            #                 lemma_matcher.add("lemma",[lemma_rule])
+            #                 matches = matcher(nlp(it_matched[1][0]))
+            #                 lemma_matches = lemma_matcher(nlp(it_matched[1][0]))
+            #                 if matches is not None and len(matches)>0 and len(lemma_matches) <= 0:
+            #                     it_matched[1].append('softmatch: ['+str(pat['LEMMA']['IN'][0])+'] ')
+            #                     break
 
             temp.append(int(it_matched[0]))
             matched_parts[selected_patterns[i]][id] = it_matched[1] #.append({int(id): it_matched[1]})
