@@ -204,7 +204,7 @@ class Synthesizer:
 
             #to turn on soft match
             # soft_match_positives(working_list, self.positive_examples, price=self.price, threshold=0.6)
-            soft_match_positives(working_list, price=self.price, similarity_dict=self.similarity_dict, threshold=self.soft_threshold)
+            # soft_match_positives(working_list, price=self.price, similarity_dict=self.similarity_dict, threshold=self.soft_threshold)
             
             postive_match_count = match_positives(working_list, self.positive_examples)
             negative_match_count = match_positives(working_list, self.negative_examples, negative_set=True)
