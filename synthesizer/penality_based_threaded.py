@@ -84,7 +84,28 @@ class Synthesizer:
                 if flag:
                     final_list.append(lit)
                     if len(final_list) >= threshold: break
-                
+            # for lit in simi_list:
+            #     if type(self.similarity_dict[lit]) is list:
+            #         setA = set(self.similarity_dict[lit])
+            #     else:
+            #         setA = set(self.similarity_dict[lit].keys())
+            #     setA.add(lit)
+            #     flag = True
+            #     for word in final_list:
+            #         if type(self.similarity_dict[word]) is list:
+            #             setB = set(self.similarity_dict[word])
+            #         else:
+            #             setB = set(self.similarity_dict[word].keys())
+            #         setB.add(word)
+            #         jaccard_sim = float(len(setA.intersection(setB))) / len(setA.union(setB))
+            #         # if setA == setB:
+            #         if  jaccard_sim > 0.7: # randomly 0.7
+            #             flag = False
+            #             break 
+            #     if flag:
+            #         final_list.append(lit)
+            #         if len(final_list) >= threshold: break
+            
             return final_list
         else:
             for ex in self.positive_examples:
@@ -146,9 +167,10 @@ class Synthesizer:
             symbol = stru(LITERAL, f"[{pattern}]")
             print("literal: " + symbol.type_ + symbol.value_1)
             self.search_space.append(symbol)
-            symbol = stru(LITERAL, f"({pattern})")
-            print("soft literal: " + symbol.type_ + symbol.value_1)
-            self.search_space.append(symbol)
+            if self.soft_match_on:
+                symbol = stru(LITERAL, f"({pattern})")
+                print("soft literal: " + symbol.type_ + symbol.value_1)
+                self.search_space.append(symbol)
 
         for pattern in entities:
             symbol = stru(ENTITY, f"${pattern}")
