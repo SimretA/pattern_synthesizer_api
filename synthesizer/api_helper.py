@@ -178,7 +178,7 @@ class APIHelper:
         cached = self.ran_cache()
 
         #For testing 
-        # cached = None
+        cached = None
 
         if(type(cached) != type(None)):
             df = cached
@@ -334,40 +334,40 @@ class APIHelper:
             newresults["iteration_num"] = x
             newresults["iteration_time"] = '{:.1f} minutes'.format((time.time() - iteration_start_time) / 60)
             print(newresults["iteration_time"])
-            if 'scores' in results:
-                dataset = self.data
-                baseline = pd.read_json("results/baseline_result_15_5.json")
-                resultA = [v > 0.5 for k,v in results['scores'].items()]
-                resultB = [v > 0.5 for k,v in baseline['scores'][x].items()]
-                newresults['baseline_iteration_time'] = baseline["iteration_time"][x]
-                newresults['Fscore_comparison'] = {'This': results['overall_fscore'], 'Baseline': baseline['overall_fscore'][x]}
-                newresults["TP"] = []
-                newresults["FP"] = []
-                newresults["TN"] = []
-                newresults["FN"] = []
-                for j in range(len(resultA)):
-                    if resultA[j] != resultB[j]:
-                        ex = [dataset['example'][j]]
-                        for pat in results['patterns']:
-                            if results['explanation'][pat['pattern']][dataset['id'][j]] != '':
-                                ex.append({pat['pattern']:results['explanation'][pat['pattern']][dataset['id'][j]], "weight":pat['weight']})
-                        # ex_baseline = [dataset['example'][j]]
-                        # for pat in baseline['patterns'][x]:
-                        #     if baseline['explanation'][x][pat['pattern']][dataset['id'][j]] != '':
-                        #         ex_baseline.append({pat['pattern']:baseline['explanation'][x][pat['pattern']][dataset['id'][j]]})
-                        #         print(ex_baseline)
-                        if dataset['positive'][j] == resultA[j]:
-                            if resultA[j] == 1:
-                                newresults["TP"].append({dataset['id'][j]:ex})
-                            else: newresults["TN"].append({dataset['id'][j]:ex})
-                        if dataset['positive'][j] != resultA[j]:
-                            if resultA[j] == 1:
-                                newresults["FP"].append({dataset['id'][j]:ex})
-                            else: newresults["FN"].append({dataset['id'][j]:ex})
-                newresults['TP_num'] = len(newresults['TP'])
-                newresults['FP_num'] = len(newresults['FP'])
-                newresults['TN_num'] = len(newresults['TN'])
-                newresults['FN_num'] = len(newresults['FN'])
+            # if 'scores' in results:
+            #     dataset = self.data
+            #     baseline = pd.read_json("results/baseline_result_15_5.json")
+            #     resultA = [v > 0.5 for k,v in results['scores'].items()]
+            #     resultB = [v > 0.5 for k,v in baseline['scores'][x].items()]
+            #     newresults['baseline_iteration_time'] = baseline["iteration_time"][x]
+            #     newresults['Fscore_comparison'] = {'This': results['overall_fscore'], 'Baseline': baseline['overall_fscore'][x]}
+            #     newresults["TP"] = []
+            #     newresults["FP"] = []
+            #     newresults["TN"] = []
+            #     newresults["FN"] = []
+            #     for j in range(len(resultA)):
+            #         if resultA[j] != resultB[j]:
+            #             ex = [dataset['example'][j]]
+            #             for pat in results['patterns']:
+            #                 if results['explanation'][pat['pattern']][dataset['id'][j]] != '':
+            #                     ex.append({pat['pattern']:results['explanation'][pat['pattern']][dataset['id'][j]], "weight":pat['weight']})
+            #             # ex_baseline = [dataset['example'][j]]
+            #             # for pat in baseline['patterns'][x]:
+            #             #     if baseline['explanation'][x][pat['pattern']][dataset['id'][j]] != '':
+            #             #         ex_baseline.append({pat['pattern']:baseline['explanation'][x][pat['pattern']][dataset['id'][j]]})
+            #             #         print(ex_baseline)
+            #             if dataset['positive'][j] == resultA[j]:
+            #                 if resultA[j] == 1:
+            #                     newresults["TP"].append({dataset['id'][j]:ex})
+            #                 else: newresults["TN"].append({dataset['id'][j]:ex})
+            #             if dataset['positive'][j] != resultA[j]:
+            #                 if resultA[j] == 1:
+            #                     newresults["FP"].append({dataset['id'][j]:ex})
+            #                 else: newresults["FN"].append({dataset['id'][j]:ex})
+            #     newresults['TP_num'] = len(newresults['TP'])
+            #     newresults['FP_num'] = len(newresults['FP'])
+            #     newresults['TN_num'] = len(newresults['TN'])
+            #     newresults['FN_num'] = len(newresults['FN'])
             results = {**results, **newresults}
             # Overview
             # results = newresults
@@ -386,7 +386,7 @@ class APIHelper:
 
         
 
-        collector += newCollector
+        # collector += newCollector
         with open('results/test_results.json', 'w') as f:
             json.dump(collector, f)
         print('---------- {:.1f} minutes ----------'.format((time.time() - start_time) / 60))
