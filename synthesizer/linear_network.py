@@ -298,7 +298,7 @@ def feature_selector_2(df, k):
             break
     return patterns
 
-def train_linear_mode(df, price, soft_match_on=False, words_dict=None, similarity_dict=None, soft_threshold=0.6, soft_topk_on=False, soft_topk=1):
+def train_linear_mode(df, price, soft_match_on=True, words_dict=None, similarity_dict=None, soft_threshold=0.6, soft_topk_on=False, soft_topk=1):
     
     outs = df["labels"].values
     

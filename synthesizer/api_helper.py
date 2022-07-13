@@ -210,7 +210,7 @@ class APIHelper:
         
         #For testing 
         # cached = None
-        if(type(cached) != type(None) and False): #for test
+        if(type(cached) != type(None)): #for test
             df = cached
         else:
             self.synthh = Synthesizer(positive_examples = list(self.positive_examples_collector.values()), negative_examples = list(self.negative_examples_collector.values())+self.negative_phrases, max_depth=depth, rewardThreshold=rewardThreshold, penalityThreshold=penalityThreshold, soft_match_on=self.soft_match_on, price=self.data, words_dict=self.words_dict, similarity_dict=self.similarity_dict,
@@ -240,14 +240,32 @@ class APIHelper:
         #     sentence_explanation.append({key:value[id]})
 
         score = self.results['scores'][id]
+        explanation = self.results['explanation']
+        this_pattern_matches = []
+        for key, value in explanation.items():
+            if(value[id]!=""):
+                this_pattern_matches.append(key)
+        print("match related with ", this_pattern_matches)
+        
 
         related = []
+
+        related_highlights = {}
 
         for sentence_id in list(self.data['id'].values):
             if sentence_id == id:
                 continue
             if self.results['scores'][sentence_id] == score:
                 related.append(sentence_id)
+                related_highlights[sentence_id] = []
+                for pattern in this_pattern_matches:
+                    related_highlights[sentence_id].append(explanation[pattern][sentence_id])
+        # print("highlight ", related_highlights)
+
+
+
+
+
         
         dataset = []
         
@@ -266,7 +284,7 @@ class APIHelper:
             dataset.append(item)
 
 
-        return dataset
+        return dataset, related_highlights
 
     def run_test(self, iteration, no_annotation, depth=4, rewardThreshold=0.01, penalityThreshold=0.3):
         start_time = time.time()
