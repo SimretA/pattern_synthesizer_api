@@ -38,13 +38,15 @@ class APIHelper:
         self.themes = {}
         self.results = {}
 
-        self.words_dict = {}
-        self.soft_threshold = 0.6
-        self.soft_match_on = False
-        self.words_dict, self.similarity_dict = get_similarity_dict(self.data["example"].values, soft_threshold=self.soft_threshold)
 
+        self.soft_match_on = True
+        self.words_dict = {}
+        self.similarity_dict = {}
+        self.soft_threshold = 0.4
         self.soft_topk_on = False
         self.topk = 1
+        self.words_dict, self.similarity_dict = get_similarity_dict(self.data["example"].values, soft_threshold=self.soft_threshold)
+        # print(list(self.similarity_dict['pricey'].keys()))
     
     
     def save_cache(self, pattern_set):
@@ -181,7 +183,7 @@ class APIHelper:
         if(type(cached) != type(None)):
             df = cached
         else:
-            self.synthh = Synthesizer(positive_examples = list(self.positive_examples_collector.values()), negative_examples = list(self.negative_examples_collector.values())+self.negative_phrases, max_depth=depth, rewardThreshold=rewardThreshold, penalityThreshold=penalityThreshold, price=self.data, words_dict=self.words_dict, similarity_dict=self.similarity_dict,
+            self.synthh = Synthesizer(positive_examples = list(self.positive_examples_collector.values()), negative_examples = list(self.negative_examples_collector.values())+self.negative_phrases, max_depth=depth, rewardThreshold=rewardThreshold, penalityThreshold=penalityThreshold, soft_match_on=self.soft_match_on, price=self.data, words_dict=self.words_dict, similarity_dict=self.similarity_dict,
             soft_threshold=self.soft_threshold)
 
             self.synthh.find_patters()
@@ -211,7 +213,7 @@ class APIHelper:
         if(type(cached) != type(None) and False): #for test
             df = cached
         else:
-            self.synthh = Synthesizer(positive_examples = list(self.positive_examples_collector.values()), negative_examples = list(self.negative_examples_collector.values())+self.negative_phrases, max_depth=depth, rewardThreshold=rewardThreshold, penalityThreshold=penalityThreshold, price=self.data, words_dict=self.words_dict, similarity_dict=self.similarity_dict,
+            self.synthh = Synthesizer(positive_examples = list(self.positive_examples_collector.values()), negative_examples = list(self.negative_examples_collector.values())+self.negative_phrases, max_depth=depth, rewardThreshold=rewardThreshold, penalityThreshold=penalityThreshold, soft_match_on=self.soft_match_on, price=self.data, words_dict=self.words_dict, similarity_dict=self.similarity_dict,
             soft_threshold=self.soft_threshold)
             
             self.synthh.find_patters()

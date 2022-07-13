@@ -48,7 +48,7 @@ def dict_hash(dictionary):
     dhash.update(encoded)
     return dhash.hexdigest()
 
-def expand_working_list(pat):
+def expand_working_list(pat, soft_match_on=False, similarity_dict=None):
     result = []
     if (pat == None):
         return []
@@ -66,6 +66,10 @@ def expand_working_list(pat):
                     if (p[0] == "["):
                         temp = {"LEMMA": {"IN": [p[1:-1]]}, "OP": "+"}
                         optional_patterns.append(temp)
+                    elif soft_match_on and (p[0] == "("):
+                        temp = {"LEMMA": {"IN": [p[1:-1]] + list(similarity_dict[p[1:-1]])}, "OP": "+"}
+                        optional_patterns.append(temp)
+
                     elif (p[0] == "$"):
                         temp = {"ENT_TYPE": p[1:], "OP": "+"}
                         optional_patterns.append(temp)
@@ -90,6 +94,9 @@ def expand_working_list(pat):
                     # temp = {"OP": "?"}
                 elif (pattern[0] == "["):
                     temp = {"LEMMA": {"IN": [pattern[1:-1]]}, "OP": "+"}
+                elif soft_match_on and (pattern[0] == "("):
+                    # print("the simlar words for ",pattern[1:-1], similarity_dict)
+                    temp = {"LEMMA": {"IN": [pattern[1:-1]] + list(similarity_dict[pattern[1:-1]])}, "OP": "+"}
                 elif (pattern[0] == "$"):
                     temp = {"ENT_TYPE": pattern[1:], "OP": "+"}
                 else:
