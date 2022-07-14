@@ -192,7 +192,7 @@ def patterns_against_examples(file_name, patterns, examples, ids, labels,priorit
     for pattern in patterns:
         pattern_result = []
         working_list = expand_working_list(pattern, soft_match_on=soft_match_on, similarity_dict=similarity_dict)
-        soft_match_positives(working_list, price=price, similarity_dict=similarity_dict, threshold=soft_threshold)
+        # soft_match_positives(working_list, price=price, similarity_dict=similarity_dict, threshold=soft_threshold)
         for sent in examples:
             if(check_matching(sent, working_list)):
                 pattern_result.append(1)
@@ -353,9 +353,9 @@ def train_linear_mode(df, price, soft_match_on=True, words_dict=None, similarity
         selected_working_list.append(expand_working_list(pattern, soft_match_on=soft_match_on, similarity_dict=similarity_dict))
 
     #soft match on
-    if soft_match_on:
-        similar_words = check_soft_matching(price, selected_working_list, explain=True, similarity_dict=similarity_dict, threshold=soft_threshold, topk_on=soft_topk_on, topk=soft_topk)
-        print("modified working_list: {}".format(selected_working_list))
+    # if soft_match_on:
+    #     similar_words = check_soft_matching(price, selected_working_list, explain=True, similarity_dict=similarity_dict, threshold=soft_threshold, topk_on=soft_topk_on, topk=soft_topk)
+    #     print("modified working_list: {}".format(selected_working_list))
 
 
     for pattern in selected_patterns:
