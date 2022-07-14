@@ -223,7 +223,7 @@ class APIHelper:
             except:
                return {"message":"Annotate Some More"}
         
-        res = train_linear_mode(df=df, price=self.data, words_dict=self.words_dict, similarity_dict=self.similarity_dict, soft_threshold=self.soft_threshold)
+        res = train_linear_mode(df=df, price=self.data, soft_match_on=self.soft_match_on,words_dict=self.words_dict, similarity_dict=self.similarity_dict, soft_threshold=self.soft_threshold)
         return res
 
     
