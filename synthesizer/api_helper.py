@@ -3,6 +3,7 @@ from synthesizer.penality_based_threaded import Synthesizer
 from synthesizer.helpers import dict_hash
 from synthesizer.helpers import get_patterns
 from synthesizer.helpers import get_similarity_dict
+from synthesizer.helpers import expand_working_list
 import pandas as pd
 import json
 import spacy
@@ -259,7 +260,9 @@ class APIHelper:
                 related.append(sentence_id)
                 related_highlights[sentence_id] = []
                 for pattern in this_pattern_matches:
-                    related_highlights[sentence_id].append(explanation[pattern][sentence_id])
+                    hglgt =  " ".join(explanation[pattern][sentence_id][0][0])
+                    # print("related highlights ", explanation[pattern][sentence_id])
+                    related_highlights[sentence_id].append(hglgt)
         # print("highlight ", related_highlights)
 
 
@@ -410,6 +413,18 @@ class APIHelper:
         print('---------- {:.1f} minutes ----------'.format((time.time() - start_time) / 60))
 
         return collector
+
+    def explain_pattern(self, pattern):
+        exp = {}
+        pattern = pattern.replace('+', ', ')
+        pattern = pattern.replace('|', ', ')
+        pattern_list = pattern.split(", ")
+        for pat in pattern_list:
+            pattern_expanded = expand_working_list(pat, soft_match_on=True, similarity_dict=self.similarity_dict)[0][0]
+            if('LEMMA' in pattern_expanded and pat[0]=='('):
+                print(pattern_expanded['LEMMA'])
+                exp[pat] = pattern_expanded['LEMMA']["IN"] 
+        return exp
 
         
 

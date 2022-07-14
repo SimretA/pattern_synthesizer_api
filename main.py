@@ -166,6 +166,10 @@ async def set_theme(theme:str):
 async def get_related_examples(id:str):
     results = await loop.run_in_executor(executor, api_helper.get_related, id)
     return results
+@app.get("/explain/{pattern}")
+async def explain_pattern(pattern:str):
+    results = await loop.run_in_executor(executor, api_helper.explain_pattern, pattern)
+    return results
 
 def main():
     synthh = Synthesizer(positive_examples = "examples/price_big", negative_examples = "examples/not_price_big")
