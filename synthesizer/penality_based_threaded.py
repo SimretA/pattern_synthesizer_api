@@ -8,6 +8,7 @@ from synthesizer.helpers import match_positives
 from synthesizer.helpers import soft_match_positives
 from synthesizer.helpers import show_patters
 
+import itertools
 
 nlp = spacy.load("en_core_web_sm")
 
@@ -77,6 +78,7 @@ class Synthesizer:
 
             for lit in simi_list:
                 flag = True
+                if simi_dict[lit] < mention_threshold: break
                 for word in final_list:
                     if lit in self.similarity_dict[word]:
                         flag = False
@@ -84,7 +86,9 @@ class Synthesizer:
                 if flag:
                     final_list.append(lit)
                     if len(final_list) >= threshold: break
+
             # for lit in simi_list:
+            #     if simi_dict[lit] < mention_threshold: break
             #     if type(self.similarity_dict[lit]) is list:
             #         setA = set(self.similarity_dict[lit])
             #     else:
@@ -99,7 +103,7 @@ class Synthesizer:
             #         setB.add(word)
             #         jaccard_sim = float(len(setA.intersection(setB))) / len(setA.union(setB))
             #         # if setA == setB:
-            #         if  jaccard_sim > 0.7: # randomly 0.7
+            #         if  jaccard_sim > 0.6: # randomly 0.6
             #             flag = False
             #             break 
             #     if flag:
@@ -179,7 +183,13 @@ class Synthesizer:
     
     
     def search(self, pat,  previous_positive_matched=0, previous_negative_matched=0, depth=0, make_or=False, search_space=None):
-        self.search_track.add(pat)
+        # self.search_track.add(pat)
+        for permutation in list(itertools.permutations(pat.rsplit('+',1)[-1].split('|'))):
+            or_part = ""
+            for pattern in permutation:
+                or_part += "|" + pattern
+            or_part=or_part.strip("|")
+            self.search_track.add(pat.rstrip(pat.rsplit('+',1)[-1]) + or_part)
         if(depth>=self.max_depth):
             # print("***ERROR MAX DEPTH REACHED")
             # print(f'Pattern: {pat}')
@@ -202,11 +212,19 @@ class Synthesizer:
             if(make_or):
                 if(p.type_==WILD):
                     continue
-                if pat.rstrip(pat.rsplit('+',1)[-1])+p.value_1+"|"+pat.rsplit('+',1)[-1] in self.search_track:
-                    continue
-                if self.soft_match_on and p.type_ == LITERAL and (pat.rsplit('+',1)[-1].startswith("(") or pat.rsplit('+',1)[-1].startswith("[")) and pat.rsplit('+',1)[-1].strip("()[]") == p.value_1.strip("()[]"):
-                    continue
+                # if pat.rstrip(pat.rsplit('+',1)[-1])+p.value_1+"|"+pat.rsplit('+',1)[-1] in self.search_track:
+                #     continue
+                # if self.soft_match_on and p.type_ == LITERAL and (pat.rsplit('+',1)[-1].startswith("(") or pat.rsplit('+',1)[-1].startswith("[")) and pat.rsplit('+',1)[-1].strip("()[]") == p.value_1.strip("()[]"):
+                #     continue
+                if self.soft_match_on and p.type_ == LITERAL:
+                    flag = False
+                    for pattern in pat.rsplit('+',1)[-1].split('|'):
+                        if pattern.strip("[]()") == p.value_1.strip("[]()"):
+                            flag = True
+                    if flag: continue
                 working_pattern = f"{pat}|{p.value_1}"
+                if working_pattern in self.search_track: continue
+                
                 
                 
             else:
