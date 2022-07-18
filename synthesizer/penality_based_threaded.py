@@ -292,7 +292,10 @@ class Synthesizer:
                 if(previous_positive_matched==0 and postive_match_count<len(self.positive_examples)):
                     #Search with an or too
                     pass
-                self.search(working_pattern,  previous_positive_matched=postive_match_count, previous_negative_matched=negative_match_count, depth=depth+1, search_space=new_search_space, make_or=True)
+                    if self.soft_match_on:
+                        self.search(working_pattern,  previous_positive_matched=postive_match_count, previous_negative_matched=negative_match_count, depth=depth+1, search_space=new_search_space, make_or=True)
+                if not self.soft_match_on:
+                    self.search(working_pattern,  previous_positive_matched=postive_match_count, previous_negative_matched=negative_match_count, depth=depth+1, search_space=new_search_space, make_or=True)
 
             else:
                 if(make_or):
