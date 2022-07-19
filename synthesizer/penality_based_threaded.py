@@ -13,8 +13,9 @@ import itertools
 nlp = spacy.load("en_core_web_sm")
 
 class Synthesizer:
-    def __init__(self, positive_examples, negative_examples=None, threshold=0.5,literal_threshold=4, max_depth=10, rewardThreshold=0.01, penalityThreshold=0.3, price=None, soft_match_on=False, words_dict=None, similarity_dict=None, soft_threshold=0.6, soft_topk_on=False, soft_topk=1) -> None:
+    def __init__(self, positive_examples, negative_examples=None, threshold=0.5,literal_threshold=4, max_depth=10, rewardThreshold=0.01, penalityThreshold=0.3, price=None, soft_match_on=False, only_soft_match=False, words_dict=None, similarity_dict=None, soft_threshold=0.6, soft_topk_on=False, soft_topk=1) -> None:
         self.soft_match_on = soft_match_on
+        self.only_soft_match = only_soft_match
         self.words_dict = words_dict
         self.similarity_dict = similarity_dict
         self.soft_threshold = soft_threshold
@@ -168,9 +169,10 @@ class Synthesizer:
             self.search_space.append(symbol)
             #All literal word tags
         for pattern in literals:
-            symbol = stru(LITERAL, f"[{pattern}]")
-            print("literal: " + symbol.type_ + symbol.value_1)
-            self.search_space.append(symbol)
+            if not (self.soft_match_on and self.only_soft_match):
+                symbol = stru(LITERAL, f"[{pattern}]")
+                print("literal: " + symbol.type_ + symbol.value_1)
+                self.search_space.append(symbol)
             if self.soft_match_on:
                 symbol = stru(LITERAL, f"({pattern})")
                 print("soft literal: " + symbol.type_ + symbol.value_1)
