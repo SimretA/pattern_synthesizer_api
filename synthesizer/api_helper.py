@@ -26,12 +26,15 @@ class APIHelper:
         self.theme = "price_service_300"
         self.selected_theme = "price"
 
-        # self.theme = "price_service"
+        # self.data = pd.read_csv(f"examples/df/{self.theme}.csv")
+        # self.data['positive'] = self.data['label'].apply(lambda x: x==self.selected_theme)
 
-        # self.theme = "hate_speech_binary"
 
-        self.data = pd.read_csv(f"examples/df/{self.theme}.csv")
-        self.data['positive'] = self.data['label'].apply(lambda x: x==self.selected_theme)
+
+        self.data = pd.read_csv(f"examples/df/price_service_500.csv", delimiter=",")
+        # self.data['positive'] = self.data[self.selected_theme]
+
+
         self.priority_unmatch = []
         self.priority_match = []
 
@@ -48,6 +51,14 @@ class APIHelper:
         self.topk = 1
         self.words_dict, self.similarity_dict = get_similarity_dict(self.data["example"].values, soft_threshold=self.soft_threshold)
         # print(list(self.similarity_dict['pricey'].keys()))
+
+        self.element_to_label = {}
+        self.theme_to_element = {}
+        self.element_to_sentence = {}
+        self.synthesizer_collector = {}
+        self.initialize_synthesizers(self.get_themes())
+
+
     
     
     def save_cache(self, pattern_set):
@@ -72,13 +83,17 @@ class APIHelper:
     def set_theme(self, theme):
         self.selected_theme = theme
 
-        self.data['positive'] = self.data['label'].apply(lambda x: x==self.selected_theme)
+        # self.data['positive'] = self.data['label'].apply(lambda x: x==self.selected_theme)
+        # self.data['positive'] = self.data[theme].apply(lambda x: x==self.selected_theme)
+
+        # self.data['positive'] = self.data[self.selected_theme]
+
         self.clear_label()
 
         return self.get_labeled_dataset()
     
     def get_themes(self):
-        return list(self.data['label'].unique())
+        return list(self.data.columns.unique())[2:]
     
     def get_selected_theme(self):
         return self.selected_theme
@@ -158,7 +173,7 @@ class APIHelper:
             item = dict()
             item["id"] = str(i)
             item["example"] = self.data[self.data["id"] == i]["example"].values[0]
-            item["true_label"] = self.data[self.data["id"] == i]["positive"].values.tolist()[0]
+            item["true_label"] = self.data[self.data["id"] == i][self.selected_theme].values.tolist()[0]
             item["score"] = None
             if(str(i) in self.labels):
                 item["user_label"] = self.labels[str(i)]
@@ -470,3 +485,83 @@ class APIHelper:
         return collector
 
 
+
+######################################################################################################################################################
+
+    def initialize_synthesizers(self, themes):
+        for theme in themes:
+            self.synthesizer_collector[theme] = Synthesizer(positive_examples = [], negative_examples = [], soft_match_on=self.soft_match_on, words_dict=self.words_dict, similarity_dict=self.similarity_dict,
+            soft_threshold=self.soft_threshold)
+    
+    def label_element(self, elementId, label):
+        if elementId in self.element_to_label:
+            self.element_to_label[elementId].append(label)
+        else:
+            self.element_to_label[elementId] = [label]
+        
+        
+        
+        print(label in self.theme_to_element, self.theme_to_element)
+        if label in self.theme_to_element:
+            self.theme_to_element[label].append(elementId)
+        else:
+            self.theme_to_element[label] = [elementId]
+        
+        if elementId not in self.element_to_sentence:
+            sentence = nlp(self.data[self.data["id"] == elementId]["example"].values[0])
+            self.element_to_sentence[elementId] = sentence
+
+
+
+        print(self.theme_to_element)
+        print(self.element_to_label)
+        return {"status":200, "message":"ok", "id":elementId, "label":label}
+    
+    def delete_label(self, elementId, label):
+        self.element_to_label[elementId].remove(label)
+
+        self.theme_to_element[label].remove(elementId)
+
+        print(self.theme_to_element)
+        print(self.element_to_label)
+        return {"status":200, "message":"label deleted", "id":elementId, "label":label}
+
+    def synthesize_patterns(self):
+        #aggregate examples
+        positive_examples_id = self.theme_to_element[self.selected_theme]
+        positive_examples = []
+        for id in positive_examples_id:
+            positive_examples.append(self.element_to_sentence[id])
+        negative_examples = []
+        for elementId in self.element_to_label:
+            if(not self.selected_theme in self.element_to_label[elementId]):
+                negative_examples.append(self.element_to_sentence[elementId])
+        
+
+        #check if we have data annotated
+        if len(positive_examples)==0:
+            return {"message":"Nothing labeled yet"}
+        
+        #Check if data is in the chache
+        cached = self.ran_cache()
+
+        if(type(cached) != type(None)):
+            df = cached
+        else:
+            self.synthesizer_collector[self.selected_theme].set_params(positive_examples, negative_examples)
+            self.synthesizer_collector[self.selected_theme].find_patters()
+
+            try:
+                df = self.save_cache(self.synthesizer_collector[self.selected_theme].patterns_set)
+            except:
+                print(self.synthh.patterns_set)
+                return {"message":"Annotate Some More"}
+        
+        patterns = get_patterns(df, self.labels)
+
+        return patterns
+
+
+
+        print("POS", positive_examples)
+        print("NEG", negative_examples)

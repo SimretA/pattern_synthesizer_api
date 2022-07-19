@@ -27,8 +27,9 @@ class Synthesizer:
         self.max_depth = max_depth
         self.positive_examples = self.read_examples(positive_examples) if type(positive_examples)==type(str()) else positive_examples
         self.negative_examples = self.read_examples(negative_examples) if type(negative_examples)==type(str()) else negative_examples
-        self.search_space = [] 
-        self.get_search_space(literal_threshold)
+        self.search_space = []
+        self.literal_threshold = literal_threshold 
+        self.get_search_space(self.literal_threshold)
         self.candidate = []
         self.patterns_set = {}
         self.search_track = set()
@@ -37,7 +38,12 @@ class Synthesizer:
         self.rewardThreshold = rewardThreshold
         self.penalityThreshold = penalityThreshold
         
-        
+    
+    def set_params(self, positive_examples, negative_examples=None):
+        self.positive_examples = self.read_examples(positive_examples) if type(positive_examples)==type(str()) else positive_examples
+        self.negative_examples = self.read_examples(negative_examples) if type(negative_examples)==type(str()) else negative_examples
+        self.get_search_space(self.literal_threshold)
+
     
     def read_examples(self, file):
         examples =[]

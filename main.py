@@ -103,15 +103,15 @@ async def get_labeled_examples():
     
     return api_helper.get_labeled_dataset()
 
-@app.post("/label/{id}/{label}")
-async def label_example(id:str, label: int):
-    # if asyncio.Task:
-    #     for task in asyncio.all_tasks():
-    #         print("task", task)
-    future1 = loop.run_in_executor(None, api_helper.labeler, id, label)
-    res = await future1
-    # results = await api_helper.labeler(id, label)
-    return res
+# @app.post("/label/{id}/{label}")
+# async def label_example(id:str, label: int):
+#     # if asyncio.Task:
+#     #     for task in asyncio.all_tasks():
+#     #         print("task", task)
+#     future1 = loop.run_in_executor(None, api_helper.labeler, id, label)
+#     res = await future1
+#     # results = await api_helper.labeler(id, label)
+#     return res
 
 @app.post("/phrase/{phrase}/{label}")
 async def label_by_phrase(phrase:str, label: int):
@@ -130,10 +130,7 @@ async def combinedpatterns():
     api_helper.results = results
     return results
 
-@app.get("/patterns")
-async def patterns():
-    results = await loop.run_in_executor(executor, api_helper.all_patterns)
-    return results
+
 
 @app.get("/testing_cache")
 async def testing_patterns():
@@ -175,3 +172,29 @@ def main():
     synthh = Synthesizer(positive_examples = "examples/price_big", negative_examples = "examples/not_price_big")
     print(synthh.find_patters(outfile="small_thresh"))
 # main() pid 31616
+
+######################################################################################################################
+@app.post("/delete_label/{id}/{label}")
+async def delete_label(id:str, label: str):
+    # if asyncio.Task:
+    #     for task in asyncio.all_tasks():
+    #         print("task", task)
+    future1 = loop.run_in_executor(None, api_helper.delete_label, id, label)
+    res = await future1
+    # results = await api_helper.labeler(id, label)
+    return res
+
+@app.post("/label/{id}/{label}")
+async def label_example(id:str, label: str):
+    # if asyncio.Task:
+    #     for task in asyncio.all_tasks():
+    #         print("task", task)
+    future1 = loop.run_in_executor(None, api_helper.label_element, id, label)
+    res = await future1
+    # results = await api_helper.labeler(id, label)
+    return res
+
+@app.get("/patterns")
+async def patterns():
+    results = await loop.run_in_executor(executor, api_helper.synthesize_patterns)
+    return results
