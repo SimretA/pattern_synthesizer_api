@@ -62,7 +62,7 @@ class APIHelper:
     
     
     def save_cache(self, pattern_set):
-        file_name = dict_hash(self.labels)
+        file_name = dict_hash(self.laßbels)
         examples = list(self.positive_examples_collector.values())+list(self.negative_examples_collector.values())
         ids = list(self.positive_examples_collector.keys())+list(self.negative_examples_collector.keys())
         labels = [self.labels[x] for x in ids]
