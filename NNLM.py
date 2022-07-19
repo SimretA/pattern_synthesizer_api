@@ -44,7 +44,7 @@ def compute_metrics(eval_pred):
 
 
 def main():
-    df_examples = pd.read_csv('data/price500.csv', delimiter=';')
+    df_examples = pd.read_csv('examples/df/price500.csv', delimiter=';')
     df_labels =[]
     df_text = []
     for i in range(len(df_examples)):
