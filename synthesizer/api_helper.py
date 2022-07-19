@@ -41,6 +41,7 @@ class APIHelper:
 
 
         self.soft_match_on = True
+        self.only_soft_match = False
         self.words_dict = {}
         self.similarity_dict = {}
         self.soft_threshold = 0.6
@@ -184,7 +185,7 @@ class APIHelper:
         if(type(cached) != type(None)):
             df = cached
         else:
-            self.synthh = Synthesizer(positive_examples = list(self.positive_examples_collector.values()), negative_examples = list(self.negative_examples_collector.values())+self.negative_phrases, max_depth=depth, rewardThreshold=rewardThreshold, penalityThreshold=penalityThreshold, soft_match_on=self.soft_match_on, price=self.data, words_dict=self.words_dict, similarity_dict=self.similarity_dict,
+            self.synthh = Synthesizer(positive_examples = list(self.positive_examples_collector.values()), negative_examples = list(self.negative_examples_collector.values())+self.negative_phrases, max_depth=depth, rewardThreshold=rewardThreshold, penalityThreshold=penalityThreshold, soft_match_on=self.soft_match_on,  only_soft_match=self.only_soft_match, price=self.data, words_dict=self.words_dict, similarity_dict=self.similarity_dict,
             soft_threshold=self.soft_threshold)
 
             self.synthh.find_patters()
@@ -214,7 +215,7 @@ class APIHelper:
         if(type(cached) != type(None)): #for test
             df = cached
         else:
-            self.synthh = Synthesizer(positive_examples = list(self.positive_examples_collector.values()), negative_examples = list(self.negative_examples_collector.values())+self.negative_phrases, max_depth=depth, rewardThreshold=rewardThreshold, penalityThreshold=penalityThreshold, soft_match_on=self.soft_match_on, price=self.data, words_dict=self.words_dict, similarity_dict=self.similarity_dict,
+            self.synthh = Synthesizer(positive_examples = list(self.positive_examples_collector.values()), negative_examples = list(self.negative_examples_collector.values())+self.negative_phrases, max_depth=depth, rewardThreshold=rewardThreshold, penalityThreshold=penalityThreshold, soft_match_on=self.soft_match_on, only_soft_match=self.only_soft_match, price=self.data, words_dict=self.words_dict, similarity_dict=self.similarity_dict,
             soft_threshold=self.soft_threshold)
             
             self.synthh.find_patters()
