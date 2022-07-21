@@ -198,3 +198,14 @@ async def label_example(id:str, label: str):
 async def patterns():
     results = await loop.run_in_executor(executor, api_helper.synthesize_patterns)
     return results
+
+@app.get("/annotations")
+async def annotations():
+    results = await loop.run_in_executor(executor, api_helper.get_linear_model_results)
+    api_helper.synthesizer_collector[api_helper.selected_theme].results = results
+    return results
+
+@app.get("/test_multilabel/{iteration}/{no_annotation}")
+async def test_multilabel(iteration:int, no_annotation:int):
+    results = await loop.run_in_executor(executor, api_helper.run_multi_label_test, iteration, no_annotation)
+    return results

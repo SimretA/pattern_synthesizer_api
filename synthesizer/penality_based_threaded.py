@@ -13,7 +13,14 @@ import itertools
 nlp = spacy.load("en_core_web_sm")
 
 class Synthesizer:
-    def __init__(self, positive_examples, negative_examples=None, threshold=0.5,literal_threshold=4, max_depth=10, rewardThreshold=0.01, penalityThreshold=0.3, price=None, soft_match_on=False, words_dict=None, similarity_dict=None, soft_threshold=0.6, soft_topk_on=False, soft_topk=1) -> None:
+    def __init__(self, positive_examples, negative_examples=None, threshold=0.5,literal_threshold=4, max_depth=5, rewardThreshold=0.01, penalityThreshold=0.3, price=None, soft_match_on=False, words_dict=None, similarity_dict=None, soft_threshold=0.6, soft_topk_on=False, soft_topk=1, theme_name=None) -> None:
+        self.theme_name = theme_name
+        self.picked_patterns = []
+        self.weights = []
+        self.scores = {}
+        self.results = {}
+        
+        
         self.soft_match_on = soft_match_on
         self.words_dict = words_dict
         self.similarity_dict = similarity_dict
@@ -158,10 +165,16 @@ class Synthesizer:
         return synonyms_ls
 
     def get_search_space(self, literal_threshold=4):
+
+        self.search_space = []
+
+
         part_of_speech = [ "PRON","VERB", "PROPN", "NOUN", "ADJ", "ADV", "AUX", "NUM"]
         entities =[ 'DATE', 'EVENT', 'LOC', 'MONEY', 'ORDINAL', 'ORG', 'PERCENT', 'PERSON', 'PRODUCT', 'QUANTITY']
         wild_card = ["*"]
         literals = self.get_literals_space( literal_threshold)
+
+        
         
         
             #All POS tags
@@ -190,6 +203,7 @@ class Synthesizer:
     
     def search(self, pat,  previous_positive_matched=0, previous_negative_matched=0, depth=0, make_or=False, search_space=None):
         # self.search_track.add(pat)
+        # print("searching with ", pat)
         for permutation in list(itertools.permutations(pat.rsplit('+',1)[-1].split('|'))):
             or_part = ""
             for pattern in permutation:
@@ -212,8 +226,10 @@ class Synthesizer:
         for p in search_space:
             if(depth==0 and p.type_==WILD):
                 continue
+            
             new_search_space = search_space[:]
             new_search_space.remove(p)
+            # print("old search space ", len(search_space), "new search space", len(new_search_space))
 
             if(make_or):
                 if(p.type_==WILD):
@@ -246,11 +262,6 @@ class Synthesizer:
 
             
             working_list = expand_working_list(working_pattern, soft_match_on=self.soft_match_on, similarity_dict=self.similarity_dict)
-            # print(working_list)
-
-            #to turn on soft match
-            # soft_match_positives(working_list, self.positive_examples, price=self.price, threshold=0.6)
-            # soft_match_positives(working_list, price=self.price, similarity_dict=self.similarity_dict, threshold=self.soft_threshold)
             
             postive_match_count = match_positives(working_list, self.positive_examples)
             negative_match_count = match_positives(working_list, self.negative_examples, negative_set=True)

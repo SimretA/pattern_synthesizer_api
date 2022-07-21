@@ -1,3 +1,5 @@
+from cgitb import reset
+from re import T
 from synthesizer.linear_network import patterns_against_examples, train_linear_mode
 from synthesizer.penality_based_threaded import Synthesizer
 from synthesizer.helpers import dict_hash
@@ -9,6 +11,7 @@ import json
 import spacy
 import random
 import time
+import logging
 
 import asyncio
 
@@ -61,17 +64,23 @@ class APIHelper:
 
     
     
-    def save_cache(self, pattern_set):
-        file_name = dict_hash(self.laßbels)
-        examples = list(self.positive_examples_collector.values())+list(self.negative_examples_collector.values())
-        ids = list(self.positive_examples_collector.keys())+list(self.negative_examples_collector.keys())
-        labels = [self.labels[x] for x in ids]
+    def save_cache(self, pattern_set, positive_examples= None, negative_examples=None, pos_ids=None, neg_ids=None):
+        file_name = f"{self.selected_theme}_{dict_hash(self.labels)}" #TODO Add user session ID
 
-        df = patterns_against_examples(file_name=f"cache/{file_name}.csv",patterns=list(pattern_set.keys()), examples=examples, ids=ids, labels=labels, priority_phrases=self.negative_phrases, soft_match_on=self.soft_match_on, price=self.data, similarity_dict=self.similarity_dict, soft_threshold=self.soft_threshold)
+        
+        # examples = list(self.positive_examples_collector.values())+list(self.negative_examples_collector.values())
+        # ids = list(self.positive_examples_collector.keys())+list(self.negative_examples_collector.keys())
+        # labels = [self.labels[x] for x in ids]
+
+        examples = positive_examples+negative_examples
+        ids = pos_ids+neg_ids
+        labels = [1]*len(pos_ids) + [0]*len(neg_ids)
+
+        df = patterns_against_examples(file_name=f"cache/{file_name}.csv",patterns=list(pattern_set.keys()), examples=examples, ids=ids, labels=labels, priority_phrases=self.negative_phrases, soft_match_on=self.soft_match_on, similarity_dict=self.similarity_dict, soft_threshold=self.soft_threshold)
         return df
 
     def ran_cache(self):
-        file_name = dict_hash(self.labels)
+        file_name = f"{self.selected_theme}_{dict_hash(self.labels)}" 
         try:
             df = pd.read_csv(f"cache/{file_name}.csv")
             return df
@@ -88,7 +97,7 @@ class APIHelper:
 
         # self.data['positive'] = self.data[self.selected_theme]
 
-        self.clear_label()
+        # self.clear_label()
 
         return self.get_labeled_dataset()
     
@@ -172,8 +181,8 @@ class APIHelper:
         for i in ids:
             item = dict()
             item["id"] = str(i)
-            item["example"] = self.data[self.data["id"] == i]["example"].values[0]
-            item["true_label"] = self.data[self.data["id"] == i][self.selected_theme].values.tolist()[0]
+            item["example"] = self.data[self.data["id"] == i]["example"].values[0].capitalize()
+            item["true_label"] = self.data[self.data["id"] == i][self.selected_theme].values.tolist()[0] if self.selected_theme in self.data.columns else None
             item["score"] = None
             if(str(i) in self.labels):
                 item["user_label"] = self.labels[str(i)]
@@ -239,24 +248,14 @@ class APIHelper:
             except:
                return {"message":"Annotate Some More"}
         
-        res = train_linear_mode(df=df, price=self.data, soft_match_on=self.soft_match_on,words_dict=self.words_dict, similarity_dict=self.similarity_dict, soft_threshold=self.soft_threshold)
+        res = train_linear_mode(df=df, data=self.data, theme=self.selected_theme, soft_match_on=self.soft_match_on,words_dict=self.words_dict, similarity_dict=self.similarity_dict, soft_threshold=self.soft_threshold)
         return res
 
     
     def get_related(self, id):
 
-        # print(self.results)
-
-        
-        # explanation = self.results['explanation']
-        # sentence_explanation = []
-
-        
-        # for key,value in explanation.items():
-        #     sentence_explanation.append({key:value[id]})
-
-        score = self.results['scores'][id]
-        explanation = self.results['explanation']
+        score= self.synthesizer_collector[self.selected_theme].results['scores'][id] 
+        explanation = self.synthesizer_collector[self.selected_theme].results['explanation']
         this_pattern_matches = []
         for key, value in explanation.items():
             if(value[id]!=""):
@@ -271,7 +270,7 @@ class APIHelper:
         for sentence_id in list(self.data['id'].values):
             if sentence_id == id:
                 continue
-            if self.results['scores'][sentence_id] == score:
+            if self.synthesizer_collector[self.selected_theme].results['scores'][sentence_id] == score:
                 related.append(sentence_id)
                 related_highlights[sentence_id] = []
                 for pattern in this_pattern_matches:
@@ -291,7 +290,7 @@ class APIHelper:
             item = dict()
             item["id"] = str(i)
             item["example"] = self.data[self.data["id"] == i]["example"].values[0]
-            item["true_label"] = self.data[self.data["id"] == i]["positive"].values.tolist()[0]
+            item["true_label"] = self.data[self.data["id"] == i][self.selected_theme].values.tolist()[0]
             item["score"] = None
             if(str(i) in self.labels):
                 item["user_label"] = self.labels[str(i)]
@@ -498,10 +497,7 @@ class APIHelper:
             self.element_to_label[elementId].append(label)
         else:
             self.element_to_label[elementId] = [label]
-        
-        
-        
-        print(label in self.theme_to_element, self.theme_to_element)
+            
         if label in self.theme_to_element:
             self.theme_to_element[label].append(elementId)
         else:
@@ -511,10 +507,8 @@ class APIHelper:
             sentence = nlp(self.data[self.data["id"] == elementId]["example"].values[0])
             self.element_to_sentence[elementId] = sentence
 
-
-
-        print(self.theme_to_element)
-        print(self.element_to_label)
+        # print(self.theme_to_element)
+        # print(self.element_to_label)
         return {"status":200, "message":"ok", "id":elementId, "label":label}
     
     def delete_label(self, elementId, label):
@@ -528,22 +522,42 @@ class APIHelper:
 
     def synthesize_patterns(self):
         #aggregate examples
-        positive_examples_id = self.theme_to_element[self.selected_theme]
+        try:
+            positive_examples_id = self.theme_to_element[self.selected_theme]
+        except:
+            response = {}
+            response["message"] = f"Nothing labeled for {self.selected_theme}"
+            response["status_code"] = 404
+            return response
         positive_examples = []
         for id in positive_examples_id:
             positive_examples.append(self.element_to_sentence[id])
+        
+        negative_examples_id = []
         negative_examples = []
         for elementId in self.element_to_label:
             if(not self.selected_theme in self.element_to_label[elementId]):
                 negative_examples.append(self.element_to_sentence[elementId])
+                negative_examples_id.append(elementId)
+
+    
+        #sanity check
+        print("POS ", positive_examples)
+        print("NEG ", negative_examples)
         
 
         #check if we have data annotated
         if len(positive_examples)==0:
-            return {"message":"Nothing labeled yet"}
+            response = {}
+            response["message"] = "Annotate Some More"
+            response["status_code"] = 404
+            return response
         
         #Check if data is in the chache
         cached = self.ran_cache()
+
+        #For testing we will set the cache to none
+        cached = None
 
         if(type(cached) != type(None)):
             df = cached
@@ -551,17 +565,132 @@ class APIHelper:
             self.synthesizer_collector[self.selected_theme].set_params(positive_examples, negative_examples)
             self.synthesizer_collector[self.selected_theme].find_patters()
 
+            
+
+            # df = self.save_cache(self.synthesizer_collector[self.selected_theme].patterns_set, positive_examples, negative_examples, positive_examples_id, negative_examples_id)
             try:
-                df = self.save_cache(self.synthesizer_collector[self.selected_theme].patterns_set)
+                df = self.save_cache(self.synthesizer_collector[self.selected_theme].patterns_set, positive_examples, negative_examples, positive_examples_id, negative_examples_id)
             except:
-                print(self.synthh.patterns_set)
-                return {"message":"Annotate Some More"}
+                response = {}
+                response["message"] = "Annotate Some More"
+                response["status_code"] = 404
+
+                # print(self.synthesizer_collector[self.selected_theme].patterns_set)
+                return response
         
         patterns = get_patterns(df, self.labels)
 
         return patterns
+    
+    def get_linear_model_results(self):
+        #check if patterns are in cache, this will most likely be true because in most cases the above 
+        #function will be called before this function
+        #if patterns are not cached we will synthesize and cache them in this function
+
+        #Check if data is in the chache    
+        cached = self.ran_cache()
+
+        #For testing 
+        cached = None
+        if(type(cached) != type(None)): #for test
+            df = cached
+        else:
+            res = self.synthesize_patterns()
+            
+            if("status_code" in res and res["status_code"]==404):
+                return res
+            
+            cached = self.ran_cache() 
+            #TODO annotate some more data needs to be added here and maybe a way to check if we have enough data annotated
+            df = cached
+            if(type(df) == type(None)):
+                #TODO handle this in a better way, but if the code gets here we know that no patterns have been synthesized becuase there weren't enough annotations
+                return {"message": f"Not enough annotations for {self.selected_theme}"}
+        
+        res = train_linear_mode(df=df, data=self.data, theme=self.selected_theme, soft_match_on=self.soft_match_on,words_dict=self.words_dict, similarity_dict=self.similarity_dict, soft_threshold=self.soft_threshold)
+        return res
+    
+    # def get_cache_name():
 
 
 
-        print("POS", positive_examples)
-        print("NEG", negative_examples)
+        #check if enough examples have been annotated
+        # if len(self.labels.keys())==0 or len(self.positive_examples_collector.keys())==0:
+        #     return {"message":"Nothing labeled yet"}
+
+    def run_multi_label_test(self, iteration, no_annotation):
+        #I declare thee a results collector
+        collector = []
+
+        #keep track of how many are being annotated
+        total_annotation_count = 0
+        theme_annotation_count = {}
+        all_themes = self.get_themes()
+
+        for theme in all_themes:
+            theme_annotation_count[theme] = 0
+
+
+        #get all ids
+        all_ids  = self.data["id"].values.tolist()
+
+
+        for i in range(iteration):
+            #pick random ids to annotate
+            ids = random.sample(all_ids, no_annotation)
+
+            #for each id picked annotate all the positive labels
+            for i in range(len(ids)):
+                total_annotation_count += 1
+                for theme in all_themes:
+                    if(self.data[self.data['id']== ids[i]][theme].values[0]):
+                        self.label_element(ids[i], theme)
+                        theme_annotation_count[theme] += 1 
+                        print(f"labeled example {ids[i]} as {theme}")
+
+        #synthesize and come up with scores for each theme
+        all_themes_results = []
+        for theme in all_themes:
+            print(f"working with {theme}")
+            self.set_theme(theme)
+            temp = {}
+            try:
+                results = self.get_linear_model_results()
+            except Exception as Argument:
+                # creating/opening a file
+                f = open("errorlog.txt", "a")
+            
+                # writing in the file
+                f.write(str(Argument))
+                
+                # closing the file
+                f.close()  
+
+            
+            #collect only relevant information from the results
+            try:
+                temp["theme"] = theme
+                temp["fscore"] = results["fscore"]
+                temp["recall"] = results["recall"]
+                temp["precision"] = results["precision"]
+                temp["overall_fscore"] = results["overall_fscore"]
+                temp["overall_recall"] = results["overall_recall"]
+                temp["overall_precision"] = results["overall_precision"]
+                temp["patterns"] = results["patterns"]
+                temp["weights"] = results["weights"]
+                temp["total_annotation_count"] = total_annotation_count
+                temp["annotation_per_theme"] = theme_annotation_count
+            except:
+                temp["theme"] = theme
+                temp["message"] = results
+
+            all_themes_results.append(temp)
+        
+        collector.append(all_themes_results)
+
+
+        #aggregate scores
+
+        #return resuts
+        return collector
+

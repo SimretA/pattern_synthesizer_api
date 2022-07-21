@@ -187,7 +187,7 @@ def check_matching(sent, working_list, explain=False):
         return (False, "")
     return False
 
-def patterns_against_examples(file_name, patterns, examples, ids, labels,priority_phrases, price=None, similarity_dict=None, soft_threshold=0.6, topk_on=False, topk=1, soft_match_on=False):
+def patterns_against_examples(file_name, patterns, examples, ids, labels,priority_phrases, similarity_dict=None, soft_threshold=0.6, topk_on=False, topk=1, soft_match_on=False):
     results = []
     for pattern in patterns:
         pattern_result = []
@@ -298,7 +298,7 @@ def feature_selector_2(df, k):
             break
     return patterns
 
-def train_linear_mode(df, price, soft_match_on=True, words_dict=None, similarity_dict=None, soft_threshold=0.6, soft_topk_on=False, soft_topk=1):
+def train_linear_mode(df, data, theme, soft_match_on=True, words_dict=None, similarity_dict=None, soft_threshold=0.6, soft_topk_on=False, soft_topk=1):
     
     outs = df["labels"].values
     
@@ -363,40 +363,11 @@ def train_linear_mode(df, price, soft_match_on=True, words_dict=None, similarity
 
     running_result = []
 
-    for sentence,id in zip(price["example"].values, price["id"].values):
+    for sentence,id in zip(data["example"].values, data["id"].values):
         temp = []
         
         for i in range(len(selected_working_list)):
             it_matched = check_matching(sentence, selected_working_list[i], explain=True)
-
-            #check soft
-            # if soft_match_on and it_matched[0]:
-            #     no_soft = False
-            #     for pattern in selected_working_list[i]:
-            #         if no_soft: continue
-            #         pat_temp = copy.deepcopy(pattern)
-            #         for pat in pat_temp:
-            #             if 'LEMMA' in pat and 'IN' in pat['LEMMA'] and pat['OP'] == '+':
-            #                 pat['LEMMA']['IN'] = [pat['LEMMA']['IN'][0]]
-            #         rule_matcher = Matcher(nlp.vocab)
-            #         rule_matcher.add("rule",[pat_temp])
-            #         rule_matches = rule_matcher(nlp(it_matched[1][0]))
-            #         if rule_matches is not None and len(rule_matches)>0:
-            #             no_soft = True
-            #             continue
-            #         for pat in pattern:
-            #             if 'LEMMA' in pat and 'IN' in pat['LEMMA'] and pat['OP'] == '+' and len(pat['LEMMA']['IN']) > 1:
-            #                 soft_rule = [{"LEMMA": {"IN": pat['LEMMA']['IN'][1:]}, "OP" : "+"}]
-            #                 lemma_rule = [{"LEMMA": {"IN": [pat['LEMMA']['IN'][0]]}, "OP" : "+"}]
-            #                 matcher = Matcher(nlp.vocab)
-            #                 lemma_matcher = Matcher(nlp.vocab)
-            #                 matcher.add("soft",[soft_rule])
-            #                 lemma_matcher.add("lemma",[lemma_rule])
-            #                 matches = matcher(nlp(it_matched[1][0]))
-            #                 lemma_matches = lemma_matcher(nlp(it_matched[1][0]))
-            #                 if matches is not None and len(matches)>0 and len(lemma_matches) <= 0:
-            #                     it_matched[1].append('softmatch: ['+str(pat['LEMMA']['IN'][0])+'] ')
-            #                     break
 
             temp.append(int(it_matched[0]))
             matched_parts[selected_patterns[i]][id] = it_matched[1] #.append({int(id): it_matched[1]})
@@ -409,7 +380,7 @@ def train_linear_mode(df, price, soft_match_on=True, words_dict=None, similarity
 
     entire_dataset_ins = torch.Tensor(running_result)
 
-    entire_dataset_outs = torch.Tensor(price["positive"].values).reshape(-1,1)
+    entire_dataset_outs = torch.Tensor(data[theme].values).reshape(-1,1)
     
 
     print(entire_dataset_ins.shape)
@@ -417,7 +388,7 @@ def train_linear_mode(df, price, soft_match_on=True, words_dict=None, similarity
     overall_prob = sigmoid.forward(net.forward(entire_dataset_ins.float())) 
 
     overall_pred = overall_prob.detach().numpy()>0.5
-    ids = price['id'].values.tolist()
+    ids = data['id'].values.tolist()
 
     overall_prf = precision_recall_fscore_support(entire_dataset_outs, overall_pred, average="binary")
 
