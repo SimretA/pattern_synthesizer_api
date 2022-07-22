@@ -8,12 +8,14 @@ import numpy as np
 from sklearn.metrics import precision_recall_fscore_support
 import pickle
 import copy
-
+import torch
 
 from nltk.corpus import wordnet as wn
 
 from sentence_transformers import SentenceTransformer, util
-model = SentenceTransformer('all-MiniLM-L6-v2')
+device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
+print("device: {}".format(device))
+model = SentenceTransformer('all-MiniLM-L6-v2').to(device)
 model_name = "LM"
 
 # import gensim
@@ -324,23 +326,35 @@ def get_similarity_dict(examples, num_threshold=2, soft_threshold=0.6, soft_topk
                         else: words_dict[str(token.lemma_)] += 1
             words_list = list(words_dict.keys())
             print(len(words_list))
-            for _i in range(len(words_list)):
-                print("{} / {}".format(_i,len(words_list)))
-                for _j in range(_i+1,len(words_list)):
-                    if model_name == "word2vec":
-                        # i_embeddings = model.encode(words_list[_i], convert_to_tensor=True)
-                        if words_list[_i] in pretrained_vectors and words_list[_j] in pretrained_vectors:
-                            similarity = pretrained_vectors.similarity(words_list[_i],words_list[_j])
-                            # similarity = util.cos_sim(model.encode(words_list[_j], convert_to_tensor=True), i_embeddings)[0][0]
+            if model_name == "LM" and torch.cuda.is_available():
+                embeddings = []
+                for _i in range(len(words_list)):
+                    embeddings.append(model.encode(words_list[_i], convert_to_tensor=True))
+                embeddings = torch.stack(embeddings)
+                similarity_tensor = util.cos_sim(embeddings, embeddings)
+                for _i in range(len(words_list)):
+                    print("{} / {}".format(_i,len(words_list)))
+                    for _j in range(_i+1,len(words_list)):
+                        similarity_dict[words_list[_i]][words_list[_j]] = similarity_tensor[_i][_j].item()
+                        similarity_dict[words_list[_j]][words_list[_i]] = similarity_tensor[_i][_j].item()
+            else:
+                for _i in range(len(words_list)):
+                    print("{} / {}".format(_i,len(words_list)))
+                    for _j in range(_i+1,len(words_list)):
+                        if model_name == "word2vec":
+                            # i_embeddings = model.encode(words_list[_i], convert_to_tensor=True)
+                            if words_list[_i] in pretrained_vectors and words_list[_j] in pretrained_vectors:
+                                similarity = pretrained_vectors.similarity(words_list[_i],words_list[_j])
+                                # similarity = util.cos_sim(model.encode(words_list[_j], convert_to_tensor=True), i_embeddings)[0][0]
+                                similarity_dict[words_list[_i]][words_list[_j]] = similarity
+                                similarity_dict[words_list[_j]][words_list[_i]] = similarity
+                        if model_name == "LM":
+                            i_embeddings = model.encode(words_list[_i], convert_to_tensor=True)
+                            # if words_list[_i] in pretrained_vectors and words_list[_j] in pretrained_vectors:
+                                # similarity = pretrained_vectors.similarity(words_list[_i],words_list[_j])
+                            similarity = util.cos_sim(model.encode(words_list[_j], convert_to_tensor=True), i_embeddings)[0][0].item()
                             similarity_dict[words_list[_i]][words_list[_j]] = similarity
                             similarity_dict[words_list[_j]][words_list[_i]] = similarity
-                    if model_name == "LM":
-                        i_embeddings = model.encode(words_list[_i], convert_to_tensor=True)
-                        # if words_list[_i] in pretrained_vectors and words_list[_j] in pretrained_vectors:
-                            # similarity = pretrained_vectors.similarity(words_list[_i],words_list[_j])
-                        similarity = util.cos_sim(model.encode(words_list[_j], convert_to_tensor=True), i_embeddings)[0][0]
-                        similarity_dict[words_list[_i]][words_list[_j]] = similarity
-                        similarity_dict[words_list[_j]][words_list[_i]] = similarity
                         
 
                     
